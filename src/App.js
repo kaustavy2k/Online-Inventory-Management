@@ -4,17 +4,24 @@ import "./app.css";
 import "./scss/style.scss";
 import BeatLoader from "react-spinners/BeatLoader";
 
-import {
-  HashRouter,
-  BrowserRouter,
-  Route,
-  Switch,
-  Redirect,
-} from "react-router-dom";
+import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import SimpleReactLightbox from "simple-react-lightbox";
 const TheLayout = React.lazy(() => import("./containers/TheLayout"));
-const Adminlogin = React.lazy(() => import("./views/admin/login/Login"));
+const Login = React.lazy(() => import("./views/admin/login-signup/Login"));
+const Signup = React.lazy(() => import("./views/admin/login-signup/Signup"));
 const ADMIN = "/admin";
+
+function ProtectedRoute({ component: Component, ...restOfProps }) {
+  const isAuthenticated = JSON.parse(localStorage.getItem("client"))._id;
+  return (
+    <Route
+      {...restOfProps}
+      render={(props) =>
+        isAuthenticated ? <Component {...props} /> : <Redirect to="/login" />
+      }
+    />
+  );
+}
 class App extends Component {
   render() {
     return (
@@ -34,12 +41,18 @@ class App extends Component {
                 exact
                 path="/login"
                 name="Login Page"
-                render={(props) => <Adminlogin {...props} />}
+                render={(props) => <Login {...props} />}
               />
               <Route
+                exact
+                path="/signup"
+                name="Signup Page"
+                render={(props) => <Signup {...props} />}
+              />
+              <ProtectedRoute
                 path="/"
                 name="Admin"
-                render={(props) => <TheLayout {...props} />}
+                component={(props) => <TheLayout {...props} />}
               />
             </Switch>
           </React.Suspense>

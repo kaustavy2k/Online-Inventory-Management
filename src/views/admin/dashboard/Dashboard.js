@@ -1,558 +1,510 @@
-import React, { lazy } from 'react'
-import {
-  CBadge,
-  CButton,
-  CButtonGroup,
-  CCard,
-  CCardBody,
-  CCardFooter,
-  CCardHeader,
-  CCol,
-  CProgress,
-  CRow,
-  CCallout
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
+import React, { Component } from "react";
+import { Spinner, Dropdown } from "react-bootstrap";
+import LoadingOverlay from "react-loading-overlay";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Select from "react-select";
+import reacthtmlparser from "react-html-parser";
+import { token } from "../token";
+import makeAnimated from "react-select/animated";
+import { Link } from "react-router-dom";
+import { DateRange } from "react-date-range";
+import "react-date-range/dist/styles.css";
+import moment from "moment";
+import "react-date-range/dist/theme/default.css";
+import "./dashboard.css";
+const animatedComponents = makeAnimated();
+let timer;
+var AuthData = JSON.parse(localStorage.getItem("AuthData"));
+class Dashboard extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      users: [],
+      updated: [],
+      current_page: 1,
+      per_page: 10,
+      totalPage: null,
+      totalData: 0,
+      loading: false,
+      deleted: 0,
+      categoryId: [],
+      tagId: [],
+      filterSearch: 0,
+      sortConfig: {
+        key: null,
+        direction: null,
+      },
+      filter: { category: [], tag: [], status: [], publishedAt: [] },
+      dateRange: [
+        {
+          startDate: new Date(),
+          endDate: null,
+          key: "selection",
+        },
+      ],
+    };
+    this.searchref = React.createRef();
+  }
+  surveyList = () => {
+    let self = this;
+    axios
+      .get(
+        `${process.env.REACT_APP_API_URL}/survey-list?page=${this.state.current_page}&numPerPage=${this.state.per_page}`,
+        {
+          params: this.state.filter,
+          withCredentials: true,
+          headers: {
+            Bearer: token(),
+          },
+        }
+      )
+      .then(function (response) {
+        let users = [...response.data.Survey];
+        let current_page = parseInt(response.data.pagination.current);
+        let per_page = response.data.pagination.perPage;
+        let totalData = response.data.pagination.totalData;
+        let totalPage = response.data.pagination.totalPages;
+        self.setState({
+          users,
+          current_page,
+          per_page, // survey = survey.filter(function (item) {
+          //   return (
+          //     item.summary.toLowerCase().search(search.toLowerCase()) !== -1 ||
+          //     item.title.toLowerCase().search(search.toLowerCase()) !== -1
+          //   );
+          // });
+          totalPage,
+          totalData,
+          loading: false,
+          filterSearch: 0,
+        });
+        return axios.get(`${process.env.REACT_APP_API_URL}/category`, {
+          withCredentials: true,
+          headers: {
+            Bearer: token(),
+          },
+        });
+      })
+      .then((res) => {
+        let cat = [...res.data.data.category];
+        let categoryId = [];
+        cat.forEach((i) => {
+          categoryId.push({ value: i.title, label: i.title, id: i.id });
+        });
+        this.setState({
+          categoryId,
+          filterSearch: 0,
+        });
+        return axios.get(`${process.env.REACT_APP_API_URL}/tag`, {
+          withCredentials: true,
+          headers: {
+            Bearer: token(),
+          },
+        });
+      })
+      .then((res) => {
+        let tag = [...res.data.data.tag];
+        let tagId = [];
+        tag.forEach((i) => {
+          tagId.push({ value: i.title, label: i.title, id: i.id });
+        });
+        this.setState({
+          filterSearch: 0,
+          tagId,
+        });
+      })
+      .catch(function (error) {
+        self.setState({ loading: false, filterSearch: 0 });
+        //toast.warning(message);
+        console.log("error response", error);
+      });
+  };
 
-import MainChartExample from '../../charts/MainChartExample.js'
+  filterList = (event) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      console.log("hi");
+      this.setState({ loading: true });
+      axios({
+        method: "get",
+        url: `${process.env.REACT_APP_API_URL}/survey-list?search=${event.target.value}`,
+        params: this.state.filter,
+        withCredentials: true,
+        headers: {
+          Bearer: token(),
+        },
+      })
+        .then((response) => {
+          let users = [...response.data.Survey];
+          this.setState({ users, loading: false });
+        })
+        .catch((error) => {
+          this.setState({ loading: false });
+          toast.warning(`Server Error~`);
+        });
+    }, 500);
+  };
+  //   componentDidMount() {
+  //     this.setState({ loading: true });
+  //     this.surveyList();
+  //   }
+  //   componentDidUpdate(prevprops, prevState) {
+  //     if (
+  //       prevState.deleted != this.state.deleted ||
+  //       prevState.current_page != this.state.current_page ||
+  //       this.state.filterSearch
+  //     ) {
+  //       this.searchref.current.value = "";
+  //       this.surveyList();
+  //     }
+  //     if (
+  //       prevState.sortConfig.key != this.state.sortConfig.key ||
+  //       prevState.sortConfig.direction != this.state.sortConfig.direction
+  //     ) {
+  //       let sortableItems = [...this.state.users];
+  //       //console.log("key in comp", sortableItems);
+  //       if (this.state.sortConfig !== null) {
+  //         sortableItems.sort((a, b) => {
+  //           if (a[this.state.sortConfig.key] < b[this.state.sortConfig.key]) {
+  //             return this.state.sortConfig.direction === "ascending" ? -1 : 1;
+  //           }
+  //           if (a[this.state.sortConfig.key] > b[this.state.sortConfig.key]) {
+  //             return this.state.sortConfig.direction === "ascending" ? 1 : -1;
+  //           }
+  //           return 0;
+  //         });
+  //       }
+  //       //console.log("key in comp2", sortableItems);
+  //       this.setState({ users: [...sortableItems] });
+  //     }
+  //   }
+  requestSort = (key) => {
+    let direction = "ascending";
+    if (
+      this.state.sortConfig &&
+      this.state.sortConfig.key === key &&
+      this.state.sortConfig.direction === "ascending"
+    ) {
+      direction = "descending";
+    }
+    this.setState({ sortConfig: { key, direction } });
+  };
+  deleteSurvey = (id, Ownerusers_id) => {
+    let cnfirm = false;
+    if (
+      Ownerusers_id == AuthData.data.id ||
+      AuthData.data.admin_role.role_name == "Admin" ||
+      AuthData.data.admin_role.role_name == "Super admin"
+    ) {
+      cnfirm = window.confirm(`Are you sure you want to delete this analyzer?`);
 
-const WidgetsDropdown = lazy(() => import('../../widgets/WidgetsDropdown.js'))
-const WidgetsBrand = lazy(() => import('../../widgets/WidgetsBrand.js'))
+      if (cnfirm) {
+        this.setState({ loading: true, deleted: 0 });
+        axios
+          .delete(`${process.env.REACT_APP_API_URL}/delete-Survey/${id}`, {
+            withCredentials: true,
+            headers: {
+              Bearer: token(),
+            },
+          })
+          .then((res) => {
+            console.log(res.data.totalCount);
+            this.setState({
+              loading: false,
+              deleted: 1,
+              totalData: res.data.totalCount,
+            });
+            toast.success("Analyzer deleted successfully");
+          })
+          .catch((error) => {
+            this.setState({ loading: false, deleted: 0 });
+            toast.warning("Cannot delete analyzer having Question");
+          });
+      }
+    } else {
+      cnfirm = window.confirm(`Not deleted ,You are not in this survey owner.`);
+    }
 
-const Dashboard = () => {
- // console.log("redirect dashboard");
-  return (
-    <>
-      <WidgetsDropdown />
-      <CCard>
-        <CCardBody>
-          <CRow>
-            <CCol sm="5">
-              <h4 id="traffic" className="card-title mb-0">Traffic</h4>
-              <div className="small text-muted">November 2017</div>
-            </CCol>
-            <CCol sm="7" className="d-none d-md-block">
-              <CButton color="primary" className="float-right">
-                <CIcon name="cil-cloud-download"/>
-              </CButton>
-              <CButtonGroup className="float-right mr-3">
-                {
-                  ['Day', 'Month', 'Year'].map(value => (
-                    <CButton
-                      color="outline-secondary"
-                      key={value}
-                      className="mx-0"
-                      active={value === 'Month'}
-                    >
-                      {value}
-                    </CButton>
-                  ))
-                }
-              </CButtonGroup>
-            </CCol>
-          </CRow>
-          <MainChartExample style={{height: '300px', marginTop: '40px'}}/>
-        </CCardBody>
-        <CCardFooter>
-          <CRow className="text-center">
-            <CCol md sm="12" className="mb-sm-2 mb-0">
-              <div className="text-muted">Visits</div>
-              <strong>29.703 Users (40%)</strong>
-              <CProgress
-                className="progress-xs mt-2"
-                precision={1}
-                color="success"
-                value={40}
+    //console.log("confirmmmm",cnfirm)
+  };
+  editSurvey = (id, obj) => {
+    let publishedAt = new Date(obj.publishedAt);
+    let endsAt;
+    if (obj.endsAt) {
+      endsAt = new Date(obj.endsAt);
+    }
+
+    let category = [];
+    let tag = [];
+    let author = [];
+    let published;
+    if (obj.published == "0") {
+      published = "Draft";
+    } else if (obj.published == "1") {
+      published = "Published";
+    } else if (obj.published == "2") {
+      published = "Inactive";
+    }
+    if (obj.catid[0] !== null) {
+      obj.catid.forEach((item, index) => {
+        category.push({
+          value: obj.category[index],
+          label: obj.category[index],
+          id: parseInt(item),
+        });
+      });
+    }
+    if (obj.tagid[0] !== null) {
+      obj.tagid.forEach((item, index) => {
+        tag.push({
+          value: obj.tag[index],
+          label: obj.tag[index],
+          id: parseInt(item),
+        });
+      });
+      //console.log(tag)
+    }
+    //console.log('atttttt',obj.author_id)
+    if (obj.author_id[0] !== null) {
+      obj.author_id.forEach((item, index) => {
+        author.push({
+          value: obj.authorname[index],
+          label: obj.authorname[index],
+          id: parseInt(item),
+        });
+      });
+    }
+
+    this.props.history.push({
+      pathname: "/admin/survey/edit-survey/" + id,
+      state: {
+        ...obj,
+        category,
+        tag,
+        author,
+        published,
+        publishedAt,
+        endsAt,
+      },
+    });
+  };
+  viewSurvey = (id, obj) => {
+    let publishedAt = new Date(obj.publishedAt);
+    let endsAt;
+    if (obj.endsAt) {
+      endsAt = new Date(obj.endsAt);
+    }
+
+    let category = [];
+    let tag = [];
+    let author = [];
+    let published;
+    if (obj.published == "0") {
+      published = "Draft";
+    } else if (obj.published == "1") {
+      published = "Published";
+    } else if (obj.published == "2") {
+      published = "Inactive";
+    }
+    if (obj.catid[0] !== null) {
+      obj.catid.forEach((item, index) => {
+        category.push({
+          value: obj.category[index],
+          label: obj.category[index],
+          id: parseInt(item),
+        });
+      });
+    }
+    if (obj.tagid[0] !== null) {
+      obj.tagid.forEach((item, index) => {
+        tag.push({
+          value: obj.tag[index],
+          label: obj.tag[index],
+          id: parseInt(item),
+        });
+      });
+      //console.log(tag)
+    }
+    //console.log('atttttt',obj.author_id)
+    if (obj.author_id[0] !== null) {
+      obj.author_id.forEach((item, index) => {
+        author.push({
+          value: obj.authorname[index],
+          label: obj.authorname[index],
+          id: parseInt(item),
+        });
+      });
+    }
+
+    this.props.history.push({
+      pathname: "/admin/survey/view-survey/" + id,
+      state: {
+        ...obj,
+        category,
+        tag,
+        author,
+        published,
+        publishedAt,
+        endsAt,
+      },
+    });
+  };
+  handlePageChange(pageNumber) {
+    this.setState({ current_page: pageNumber, loading: true });
+  }
+  categorySelector = (data) => {
+    let catId = data.map((i) => {
+      return i.id;
+    });
+    this.setState({
+      filterSearch: 1,
+      filter: { ...this.state.filter, category: catId },
+      loading: true,
+    });
+  };
+  tagSelector = (data) => {
+    let tagId = data.map((i) => {
+      return i.id;
+    });
+    this.setState({
+      filterSearch: 1,
+      filter: { ...this.state.filter, tag: tagId },
+      loading: true,
+    });
+  };
+  statusSelector = (data) => {
+    let statusId = data.map((i) => {
+      return i.id;
+    });
+    this.setState({
+      filterSearch: 1,
+      filter: { ...this.state.filter, status: statusId },
+      loading: true,
+    });
+  };
+  rangeSelector = (item) => {
+    console.log("item item hh", item);
+    this.setState({
+      filterSearch: 1,
+      dateRange: [item.selection],
+      filter: { ...this.state.filter, publishedAt: [item.selection] },
+      loading: true,
+    });
+  };
+  redirectQuestion = (uid, survey) => {
+    this.props.history.push({
+      pathname: `/admin/question/list-question/`,
+      state: {
+        survey_id: uid,
+        survey_name: survey,
+      },
+    });
+  };
+  viewDownload = (uid) => {
+    this.props.history.push({
+      pathname: "/admin/survey-pdf/" + uid,
+      state: {
+        survey_id: uid,
+      },
+    });
+  };
+  redirectRecommendation = () => {
+    this.props.history.push({
+      pathname: `/admin/recommendation/recommendation-list/`,
+    });
+  };
+  timeHandler = (time) => {
+    let check = moment(time).utc().format("LLLL");
+    if (check === "Invalid date") {
+      check = "---";
+    }
+    return <p>{check}</p>;
+  };
+  render() {
+    console.log(this.state);
+    console.log(document.cookie);
+
+    const { users, current_page, per_page, totalData } = this.state;
+
+    const colourOptions = [
+      { value: "Draft", label: "Draft", id: 0 },
+      { value: "Published", label: "Published", id: 1 },
+      { value: "Inactive", label: "Inactive", id: 2 },
+    ];
+    console.log(this.state.users);
+    return (
+      <>
+        <ToastContainer />
+        <LoadingOverlay
+          active={this.state.loading}
+          spinner={<Spinner animation="grow" variant="primary" size="lg" />}
+        >
+          <form>
+            <fieldset className="form-group">
+              <input
+                type="text"
+                id="search"
+                className="form-control form-control-lg"
+                placeholder="Search"
+                ref={this.searchref}
+                onChange={this.filterList}
               />
-            </CCol>
-            <CCol md sm="12" className="mb-sm-2 mb-0 d-md-down-none">
-              <div className="text-muted">Unique</div>
-              <strong>24.093 Users (20%)</strong>
-              <CProgress
-                className="progress-xs mt-2"
-                precision={1}
-                color="info"
-                value={40}
-              />
-            </CCol>
-            <CCol md sm="12" className="mb-sm-2 mb-0">
-              <div className="text-muted">Pageviews</div>
-              <strong>78.706 Views (60%)</strong>
-              <CProgress
-                className="progress-xs mt-2"
-                precision={1}
-                color="warning"
-                value={40}
-              />
-            </CCol>
-            <CCol md sm="12" className="mb-sm-2 mb-0">
-              <div className="text-muted">New Users</div>
-              <strong>22.123 Users (80%)</strong>
-              <CProgress
-                className="progress-xs mt-2"
-                precision={1}
-                color="danger"
-                value={40}
-              />
-            </CCol>
-            <CCol md sm="12" className="mb-sm-2 mb-0 d-md-down-none">
-              <div className="text-muted">Bounce Rate</div>
-              <strong>Average Rate (40.15%)</strong>
-              <CProgress
-                className="progress-xs mt-2"
-                precision={1}
-                value={40}
-              />
-            </CCol>
-          </CRow>
-        </CCardFooter>
-      </CCard>
+            </fieldset>
+          </form>
+          <br></br>
+          <div className="card">
+            <div className="card-header">College Inventory</div>
 
-      {/* <WidgetsBrand withCharts/> */}
-
-      {/* <CRow>
-        <CCol>
-          <CCard>
-            <CCardHeader>
-              Traffic {' & '} Sales
-            </CCardHeader>
-            <CCardBody>
-              <CRow>
-                <CCol xs="12" md="6" xl="6">
-
-                  <CRow>
-                    <CCol sm="6">
-                      <CCallout color="info">
-                        <small className="text-muted">New Clients</small>
-                        <br />
-                        <strong className="h4">9,123</strong>
-                      </CCallout>
-                    </CCol>
-                    <CCol sm="6">
-                      <CCallout color="danger">
-                        <small className="text-muted">Recurring Clients</small>
-                        <br />
-                        <strong className="h4">22,643</strong>
-                      </CCallout>
-                    </CCol>
-                  </CRow>
-
-                  <hr className="mt-0" />
-
-                  <div className="progress-group mb-4">
-                    <div className="progress-group-prepend">
-                      <span className="progress-group-text">
-                        Monday
-                      </span>
-                    </div>
-                    <div className="progress-group-bars">
-                      <CProgress className="progress-xs" color="info" value="34" />
-                      <CProgress className="progress-xs" color="danger" value="78" />
-                    </div>
-                  </div>
-                  <div className="progress-group mb-4">
-                    <div className="progress-group-prepend">
-                      <span className="progress-group-text">
-                      Tuesday
-                      </span>
-                    </div>
-                    <div className="progress-group-bars">
-                      <CProgress className="progress-xs" color="info" value="56" />
-                      <CProgress className="progress-xs" color="danger" value="94" />
-                    </div>
-                  </div>
-                  <div className="progress-group mb-4">
-                    <div className="progress-group-prepend">
-                      <span className="progress-group-text">
-                      Wednesday
-                      </span>
-                    </div>
-                    <div className="progress-group-bars">
-                      <CProgress className="progress-xs" color="info" value="12" />
-                      <CProgress className="progress-xs" color="danger" value="67" />
-                    </div>
-                  </div>
-                  <div className="progress-group mb-4">
-                    <div className="progress-group-prepend">
-                      <span className="progress-group-text">
-                      Thursday
-                      </span>
-                    </div>
-                    <div className="progress-group-bars">
-                      <CProgress className="progress-xs" color="info" value="43" />
-                      <CProgress className="progress-xs" color="danger" value="91" />
-                    </div>
-                  </div>
-                  <div className="progress-group mb-4">
-                    <div className="progress-group-prepend">
-                      <span className="progress-group-text">
-                      Friday
-                      </span>
-                    </div>
-                    <div className="progress-group-bars">
-                      <CProgress className="progress-xs" color="info" value="22" />
-                      <CProgress className="progress-xs" color="danger" value="73" />
-                    </div>
-                  </div>
-                  <div className="progress-group mb-4">
-                    <div className="progress-group-prepend">
-                      <span className="progress-group-text">
-                      Saturday
-                      </span>
-                    </div>
-                    <div className="progress-group-bars">
-                      <CProgress className="progress-xs" color="info" value="53" />
-                      <CProgress className="progress-xs" color="danger" value="82" />
-                    </div>
-                  </div>
-                  <div className="progress-group mb-4">
-                    <div className="progress-group-prepend">
-                      <span className="progress-group-text">
-                      Sunday
-                      </span>
-                    </div>
-                    <div className="progress-group-bars">
-                      <CProgress className="progress-xs" color="info" value="9" />
-                      <CProgress className="progress-xs" color="danger" value="69" />
-                    </div>
-                  </div>
-                  <div className="legend text-center">
-                    <small>
-                      <sup className="px-1"><CBadge shape="pill" color="info">&nbsp;</CBadge></sup>
-                      New clients
-                      &nbsp;
-                      <sup className="px-1"><CBadge shape="pill" color="danger">&nbsp;</CBadge></sup>
-                      Recurring clients
-                    </small>
-                  </div>
-                </CCol>
-
-                <CCol xs="12" md="6" xl="6">
-
-                  <CRow>
-                    <CCol sm="6">
-                      <CCallout color="warning">
-                        <small className="text-muted">Pageviews</small>
-                        <br />
-                        <strong className="h4">78,623</strong>
-                      </CCallout>
-                    </CCol>
-                    <CCol sm="6">
-                      <CCallout color="success">
-                        <small className="text-muted">Organic</small>
-                        <br />
-                        <strong className="h4">49,123</strong>
-                      </CCallout>
-                    </CCol>
-                  </CRow>
-
-                  <hr className="mt-0" />
-
-                  <div className="progress-group mb-4">
-                    <div className="progress-group-header">
-                      <CIcon className="progress-group-icon" name="cil-user" />
-                      <span className="title">Male</span>
-                      <span className="ml-auto font-weight-bold">43%</span>
-                    </div>
-                    <div className="progress-group-bars">
-                      <CProgress className="progress-xs" color="warning" value="43" />
-                    </div>
-                  </div>
-                  <div className="progress-group mb-5">
-                    <div className="progress-group-header">
-                      <CIcon className="progress-group-icon" name="cil-user-female" />
-                      <span className="title">Female</span>
-                      <span className="ml-auto font-weight-bold">37%</span>
-                    </div>
-                    <div className="progress-group-bars">
-                      <CProgress className="progress-xs" color="warning" value="37" />
-                    </div>
-                  </div>
-                  <div className="progress-group">
-                    <div className="progress-group-header">
-                      <CIcon className="progress-group-icon" name="cil-globe-alt" />
-                      <span className="title">Organic Search</span>
-                      <span className="ml-auto font-weight-bold">191,235 <span className="text-muted small">(56%)</span></span>
-                    </div>
-                    <div className="progress-group-bars">
-                      <CProgress className="progress-xs" color="success" value="56" />
-                    </div>
-                  </div>
-
-
-                  <div className="progress-group">
-                    <div className="progress-group-header">
-                      <CIcon name="cib-facebook" className="progress-group-icon" />
-                      <span className="title">Facebook</span>
-                      <span className="ml-auto font-weight-bold">51,223 <span className="text-muted small">(15%)</span></span>
-                    </div>
-                    <div className="progress-group-bars">
-                      <CProgress className="progress-xs" color="success" value="15" />
-                    </div>
-                  </div>
-                  <div className="progress-group">
-                    <div className="progress-group-header">
-                      <CIcon name="cib-twitter" className="progress-group-icon" />
-                      <span className="title">Twitter</span>
-                      <span className="ml-auto font-weight-bold">37,564 <span className="text-muted small">(11%)</span></span>
-                    </div>
-                    <div className="progress-group-bars">
-                      <CProgress className="progress-xs" color="success" value="11" />
-                    </div>
-                  </div>
-                  <div className="progress-group">
-                    <div className="progress-group-header">
-                      <CIcon name="cib-linkedin" className="progress-group-icon" />
-                      <span className="title">LinkedIn</span>
-                      <span className="ml-auto font-weight-bold">27,319 <span className="text-muted small">(8%)</span></span>
-                    </div>
-                    <div className="progress-group-bars">
-                      <CProgress className="progress-xs" color="success" value="8" />
-                    </div>
-                  </div>
-                  <div className="divider text-center">
-                    <CButton color="link" size="sm" className="text-muted">
-                      <CIcon name="cil-options" />
-                    </CButton>
-                  </div>
-
-                </CCol>
-              </CRow>
-
-              <br />
-
-              <table className="table table-hover table-outline mb-0 d-none d-sm-table">
-                <thead className="thead-light">
+            <div className="card-body scroller">
+              <br></br>
+              <table className="table table-striped">
+                <thead className="thead-dark">
                   <tr>
-                    <th className="text-center"><CIcon name="cil-people" /></th>
-                    <th>User</th>
-                    <th className="text-center">Country</th>
-                    <th>Usage</th>
-                    <th className="text-center">Payment Method</th>
-                    <th>Activity</th>
+                    <th scope="col">SL</th>
+                    <th scope="col">
+                      <Dropdown.Toggle
+                        className="headingSort"
+                        onClick={this.requestSort.bind(this, "title")}
+                        style={{
+                          backgroundColor: "#636f83",
+                          borderStyle: "none",
+                        }}
+                      >
+                        <strong>Item</strong>
+                      </Dropdown.Toggle>
+                    </th>
+                    {/* <th scope="col">Content</th> */}
+                    <th scope="col">Status</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td className="text-center">
-                      <div className="c-avatar">
-                        <img src={'avatars/1.jpg'} className="c-avatar-img" alt="admin@bootstrapmaster.com" />
-                        <span className="c-avatar-status bg-success"></span>
-                      </div>
-                    </td>
-                    <td>
-                      <div>Yiorgos Avraamu</div>
-                      <div className="small text-muted">
-                        <span>New</span> | Registered: Jan 1, 2015
-                      </div>
-                    </td>
-                    <td className="text-center">
-                      <CIcon height={25} name="cif-us" title="us" id="us" />
-                    </td>
-                    <td>
-                      <div className="clearfix">
-                        <div className="float-left">
-                          <strong>50%</strong>
-                        </div>
-                        <div className="float-right">
-                          <small className="text-muted">Jun 11, 2015 - Jul 10, 2015</small>
-                        </div>
-                      </div>
-                      <CProgress className="progress-xs" color="success" value="50" />
-                    </td>
-                    <td className="text-center">
-                      <CIcon height={25} name="cib-cc-mastercard" />
-                    </td>
-                    <td>
-                      <div className="small text-muted">Last login</div>
-                      <strong>10 sec ago</strong>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="text-center">
-                      <div className="c-avatar">
-                        <img src={'avatars/2.jpg'} className="c-avatar-img" alt="admin@bootstrapmaster.com" />
-                        <span className="c-avatar-status bg-danger"></span>
-                      </div>
-                    </td>
-                    <td>
-                      <div>Avram Tarasios</div>
-                      <div className="small text-muted">
-
-                        <span>Recurring</span> | Registered: Jan 1, 2015
-                      </div>
-                    </td>
-                    <td className="text-center">
-                      <CIcon height={25} name="cif-br" title="br" id="br" />
-                    </td>
-                    <td>
-                      <div className="clearfix">
-                        <div className="float-left">
-                          <strong>10%</strong>
-                        </div>
-                        <div className="float-right">
-                          <small className="text-muted">Jun 11, 2015 - Jul 10, 2015</small>
-                        </div>
-                      </div>
-                      <CProgress className="progress-xs" color="info" value="10" />
-                    </td>
-                    <td className="text-center">
-                      <CIcon height={25} name="cib-cc-visa" />
-                    </td>
-                    <td>
-                      <div className="small text-muted">Last login</div>
-                      <strong>5 minutes ago</strong>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="text-center">
-                      <div className="c-avatar">
-                        <img src={'avatars/3.jpg'} className="c-avatar-img" alt="admin@bootstrapmaster.com" />
-                        <span className="c-avatar-status bg-warning"></span>
-                      </div>
-                    </td>
-                    <td>
-                      <div>Quintin Ed</div>
-                      <div className="small text-muted">
-                        <span>New</span> | Registered: Jan 1, 2015
-                      </div>
-                    </td>
-                    <td className="text-center">
-                      <CIcon height={25} name="cif-in" title="in" id="in" />
-                    </td>
-                    <td>
-                      <div className="clearfix">
-                        <div className="float-left">
-                          <strong>74%</strong>
-                        </div>
-                        <div className="float-right">
-                          <small className="text-muted">Jun 11, 2015 - Jul 10, 2015</small>
-                        </div>
-                      </div>
-                      <CProgress className="progress-xs" color="warning" value="74" />
-                    </td>
-                    <td className="text-center">
-                      <CIcon height={25} name="cib-stripe" />
-                    </td>
-                    <td>
-                      <div className="small text-muted">Last login</div>
-                      <strong>1 hour ago</strong>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="text-center">
-                      <div className="c-avatar">
-                        <img src={'avatars/4.jpg'} className="c-avatar-img" alt="admin@bootstrapmaster.com" />
-                        <span className="c-avatar-status bg-secondary"></span>
-                      </div>
-                    </td>
-                    <td>
-                      <div>Enéas Kwadwo</div>
-                      <div className="small text-muted">
-                        <span>New</span> | Registered: Jan 1, 2015
-                      </div>
-                    </td>
-                    <td className="text-center">
-                      <CIcon height={25} name="cif-fr" title="fr" id="fr" />
-                    </td>
-                    <td>
-                      <div className="clearfix">
-                        <div className="float-left">
-                          <strong>98%</strong>
-                        </div>
-                        <div className="float-right">
-                          <small className="text-muted">Jun 11, 2015 - Jul 10, 2015</small>
-                        </div>
-                      </div>
-                      <CProgress className="progress-xs" color="danger" value="98" />
-                    </td>
-                    <td className="text-center">
-                      <CIcon height={25} name="cib-paypal" />
-                    </td>
-                    <td>
-                      <div className="small text-muted">Last login</div>
-                      <strong>Last month</strong>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="text-center">
-                      <div className="c-avatar">
-                        <img src={'avatars/5.jpg'} className="c-avatar-img" alt="admin@bootstrapmaster.com" />
-                        <span className="c-avatar-status bg-success"></span>
-                      </div>
-                    </td>
-                    <td>
-                      <div>Agapetus Tadeáš</div>
-                      <div className="small text-muted">
-                        <span>New</span> | Registered: Jan 1, 2015
-                      </div>
-                    </td>
-                    <td className="text-center">
-                      <CIcon height={25} name="cif-es" title="es" id="es" />
-                    </td>
-                    <td>
-                      <div className="clearfix">
-                        <div className="float-left">
-                          <strong>22%</strong>
-                        </div>
-                        <div className="float-right">
-                          <small className="text-muted">Jun 11, 2015 - Jul 10, 2015</small>
-                        </div>
-                      </div>
-                      <CProgress className="progress-xs" color="info" value="22" />
-                    </td>
-                    <td className="text-center">
-                      <CIcon height={25} name="cib-google-pay"/>
-                    </td>
-                    <td>
-                      <div className="small text-muted">Last login</div>
-                      <strong>Last week</strong>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="text-center">
-                      <div className="c-avatar">
-                        <img src={'avatars/6.jpg'} className="c-avatar-img" alt="admin@bootstrapmaster.com" />
-                        <span className="c-avatar-status bg-danger"></span>
-                      </div>
-                    </td>
-                    <td>
-                      <div>Friderik Dávid</div>
-                      <div className="small text-muted">
-                        <span>New</span> | Registered: Jan 1, 2015
-                      </div>
-                    </td>
-                    <td className="text-center">
-                      <CIcon height={25} name="cif-pl" title="pl" id="pl" />
-                    </td>
-                    <td>
-                      <div className="clearfix">
-                        <div className="float-left">
-                          <strong>43%</strong>
-                        </div>
-                        <div className="float-right">
-                          <small className="text-muted">Jun 11, 2015 - Jul 10, 2015</small>
-                        </div>
-                      </div>
-                      <CProgress className="progress-xs" color="success" value="43" />
-                    </td>
-                    <td className="text-center">
-                      <CIcon height={25} name="cib-cc-amex" />
-                    </td>
-                    <td>
-                      <div className="small text-muted">Last login</div>
-                      <strong>Yesterday</strong>
-                    </td>
-                  </tr>
+                  {users.map((user, i) => (
+                    <tr key={i}>
+                      <td>{(current_page - 1) * 10 + (i + 1)}</td>
+                      <td>
+                        <div className="limittitle">{user.title}</div>
+                      </td>
+                      <td>
+                        {user.published == 0
+                          ? "Draft"
+                          : user.published == 1
+                          ? "Published"
+                          : "Inactive"}
+                      </td>
+                      <td></td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
-
-            </CCardBody>
-          </CCard>
-        </CCol>
-      </CRow> */}
-    </>
-  )
+            </div>
+          </div>
+        </LoadingOverlay>
+      </>
+    );
+  }
 }
 
-export default Dashboard
+export default Dashboard;

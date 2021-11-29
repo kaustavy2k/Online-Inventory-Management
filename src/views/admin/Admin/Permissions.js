@@ -440,69 +440,9 @@ class Permissions extends Component {
           active={this.state.loading}
           spinner={<Spinner animation="grow" variant="primary" size="lg" />}
         >
-          <form>
-            <fieldset className="form-group">
-              <input
-                type="text"
-                id="search"
-                className="form-control form-control-lg"
-                placeholder="Search"
-                ref={this.searchref}
-                onChange={this.filterList}
-              />
-            </fieldset>
-            <div className="filter">
-              <div style={{ width: "100%" }}>
-                <Select
-                  placeholder="Filter by Topic"
-                  closeMenuOnSelect={false}
-                  components={animatedComponents}
-                  //defaultValue={[...this.props.state.selectedCat]}
-                  isMulti
-                  options={[...this.state.categoryId]}
-                  onChange={this.categorySelector}
-                />
-              </div>
-              <div style={{ width: "100%" }}>
-                <Select
-                  placeholder="Filter by Keyword"
-                  closeMenuOnSelect={false}
-                  components={animatedComponents}
-                  //defaultValue={[...this.props.state.selectedCat]}
-                  isMulti
-                  options={[...this.state.tagId]}
-                  onChange={this.tagSelector}
-                />
-              </div>
-              <div style={{ width: "100%" }}>
-                <Select
-                  placeholder="Filter by Status"
-                  closeMenuOnSelect={false}
-                  components={animatedComponents}
-                  //defaultValue={[...this.props.state.selectedCat]}
-                  isMulti
-                  options={colourOptions}
-                  onChange={this.statusSelector}
-                />
-              </div>
-              <Dropdown>
-                <Dropdown.Toggle variant="success" id="dropdown-basic">
-                  Filter By Published Date
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  <DateRange
-                    editableDateInputs={true}
-                    onChange={(item) => this.rangeSelector(item)}
-                    moveRangeOnFirstSelection={false}
-                    ranges={this.state.dateRange}
-                  />
-                </Dropdown.Menu>
-              </Dropdown>
-            </div>
-          </form>
           <br></br>
           <div className="card">
-            <div className="card-header">Analyzer List</div>
+            <div className="card-header">Permission Lists</div>
 
             <div className="card-body scroller">
               <br></br>
