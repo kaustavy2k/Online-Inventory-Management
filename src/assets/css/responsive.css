@@ -1,0 +1,21 @@
+@media screen and (max-width:1199px){}
+@media screen and (max-width:991px){}
+
+@media screen and (max-width:767px){
+	.sign_in_partss .inner_sign_in{
+		flex-wrap: wrap;
+	}
+
+	.reg_in .sign_in_image{
+		order: 1;
+	}
+	.reg_in .sign_in_text{
+		order: 2;
+	}
+}
+
+@media screen and (max-width:480px){
+	.rem_me{
+		flex-wrap: wrap;
+	}
+}
