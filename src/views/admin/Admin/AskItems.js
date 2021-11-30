@@ -19,11 +19,11 @@ import {
 } from "@coreui/react";
 import CIcon from "@coreui/icons-react";
 
-class AddItems extends Component {
+class AskItems extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      add: [{ item: "", quantity: "" }],
+      add: [{ item: "", quantity: "", status: "" }],
       loading: false,
       err: "",
     };
@@ -42,12 +42,13 @@ class AddItems extends Component {
     let className = e.target.name;
     let check = className.substr(0, className.indexOf(" "));
     add[e.target.dataset.id][check] = e.target.value.toLowerCase();
+    add[e.target.dataset.id].status = "approved";
     this.setState({ add, err: "" });
   };
 
   add = () => {
     this.setState((prevState) => ({
-      add: [...prevState.add, { name: "", quantity: "" }],
+      add: [...prevState.add, { name: "", quantity: "", status: "" }],
     }));
   };
 
@@ -55,28 +56,35 @@ class AddItems extends Component {
   clickSubmit = (event) => {
     event.preventDefault();
     if (this.validate()) {
-      this.setState({ loading: true });
-      const data = {
-        data: this.state.add,
-      };
-      axios
-        .post(`${process.env.REACT_APP_API_URL}/addcollegeitems`, data, {
-          withCredentials: true,
-        })
-        .then((response) => {
-          toast.success(`Item successfully added`);
-          this.setState({ loading: false });
-          setTimeout(() => {
-            this.props.history.push({
-              pathname: "/dashboard",
-            });
-          }, 1500);
-        })
-        .catch((error) => {
-          toast.warning(`Server Errors`);
-          this.setState({ loading: false });
-          console.log("error response", error);
-        });
+      let cnfirm = false;
+
+      cnfirm = window.confirm(`Are you sure you want to order these items?`);
+
+      if (cnfirm) {
+        this.setState({ loading: true });
+        const data = {
+          data: this.state.add,
+        };
+        console.log(data);
+        axios
+          .post(`${process.env.REACT_APP_API_URL}/addtransactionitems`, data, {
+            withCredentials: true,
+          })
+          .then((response) => {
+            toast.success(`Item asked from inventory`);
+            this.setState({ loading: false });
+            setTimeout(() => {
+              this.props.history.push({
+                pathname: "/admin/permissions",
+              });
+            }, 1500);
+          })
+          .catch((error) => {
+            toast.warning(`Server Errors`);
+            this.setState({ loading: false });
+            console.log("error response", error);
+          });
+      }
     }
   };
   validate = () => {
@@ -110,7 +118,7 @@ class AddItems extends Component {
           <CRow>
             <CCol xs="12" md="12">
               <CCard>
-                <CCardHeader>Add Item</CCardHeader>
+                <CCardHeader>Ask For Items</CCardHeader>
                 <CCardBody>
                   {this.state.add.map((i, ind) => {
                     return (
@@ -150,7 +158,7 @@ class AddItems extends Component {
                     color="primary"
                     onClick={this.clickSubmit}
                   >
-                    <CIcon name="cil-scrubber" /> Submit
+                    <CIcon name="cil-scrubber" /> Ask
                   </CButton>
                   &nbsp;
                   <CButton
@@ -181,4 +189,4 @@ class AddItems extends Component {
   }
 }
 
-export default AddItems;
+export default AskItems;

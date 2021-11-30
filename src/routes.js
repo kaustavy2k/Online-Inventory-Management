@@ -1,5 +1,7 @@
 import React from "react";
 const AddItems = React.lazy(() => import("./views/admin/Admin/AddItems"));
+const AskItems = React.lazy(() => import("./views/admin/Admin/AskItems"));
+
 const Permissions = React.lazy(() => import("./views/admin/Admin/Permissions"));
 
 // const Toaster = React.lazy(() =>
@@ -308,8 +310,13 @@ const routes = [
     component: AddItems,
   },
   {
+    path: "/admin/ask-item",
+    name: "Ask Item",
+    component: AskItems,
+  },
+  {
     path: "/admin/permissions",
-    name: "Add Item",
+    name: "Permissions/Status",
     component: Permissions,
   },
 ];

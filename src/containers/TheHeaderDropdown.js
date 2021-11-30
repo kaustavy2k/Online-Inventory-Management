@@ -16,7 +16,7 @@ const TheHeaderDropdown = () => {
   const useremail = localstoredata.email;
   return (
     <CDropdown inNav className="c-header-nav-items mx-2" direction="down">
-      <CDropdown className="c-header-nav-link" caret={false}>
+      <CDropdown className="c-header-nav-link" >
         <span style={{ marginRight: "15px" }}>
           <b>
             {username} ({useremail})

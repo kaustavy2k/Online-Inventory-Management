@@ -204,13 +204,18 @@ const _nav = [
     _children: [
       {
         _tag: "CSidebarNavItem",
-        name: "Permissions",
+        name: "Permissions / Status",
         to: `/admin/permissions`,
       },
       {
         _tag: "CSidebarNavItem",
         name: "Add Items",
         to: `/admin/add-item`,
+      },
+      {
+        _tag: "CSidebarNavItem",
+        name: "Ask For Items",
+        to: `/admin/ask-item`,
       },
     ],
   },

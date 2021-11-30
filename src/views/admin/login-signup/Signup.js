@@ -4,7 +4,7 @@ import { Spinner } from "react-bootstrap";
 import LoadingOverlay from "react-loading-overlay";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import Select from "react-select";
 import {
   CButton,
   CCard,
@@ -33,6 +33,7 @@ class Signup extends Component {
       errors: {},
       loading: false,
       serverErr: "",
+      role: "lab-in-charge",
     };
   }
   handleValidation = () => {
@@ -102,23 +103,29 @@ class Signup extends Component {
       [event.target.name]: event.target.value,
     });
   };
+  role = (curr) => {
+    this.setState({
+      role: curr.label.toLowerCase(),
+    });
+  };
   clickSubmit = (event) => {
     if (this.handleValidation()) {
       event.preventDefault();
       this.setState({ loading: true });
-      const { email, password, name, cpassword } = this.state;
+      const { role, email, password, name, cpassword } = this.state;
       const user = {
         email,
         password,
         passwordConfirm: cpassword,
         name,
+        role,
       };
       axios
         .post(`${process.env.REACT_APP_API_URL}/signup`, user, {
           withCredentials: true,
         })
         .then((data) => {
-          localStorage.setItem("client",JSON.stringify(data.data.data.user))
+          localStorage.setItem("client", JSON.stringify(data.data.data.user));
           this.props.history.push({
             pathname: "/dashboard",
           });
@@ -167,7 +174,7 @@ class Signup extends Component {
                         <CInputGroup className="mb-3">
                           <CInputGroupPrepend>
                             <CInputGroupText>
-                              <CIcon name="cil-list" />
+                              <CIcon name="cil-user" />
                             </CInputGroupText>
                           </CInputGroupPrepend>
                           <CInput
@@ -195,9 +202,25 @@ class Signup extends Component {
                             name="name"
                           />
                         </CInputGroup>
-                        <div style={{ color: "red" }}>
-                          {this.state.errors["name"]}
-                        </div>
+                        <CInputGroup className="mb-3">
+                          <CInputGroupPrepend>
+                            <CInputGroupText>
+                              <CIcon name="cil-list" />
+                            </CInputGroupText>
+                          </CInputGroupPrepend>
+                          <Select
+                            name="role"
+                            defaultValue={[
+                              { label: "Lab-in-Charge", value: 1 },
+                            ]}
+                            options={[
+                              { label: "Lab-in-Charge", value: 1 },
+                              { label: "Accountant", value: 2 },
+                              { label: "Inventory-in-Charge", value: 3 },
+                            ]}
+                            onChange={this.role}
+                          />
+                        </CInputGroup>
                         <CInputGroup className="mb-4">
                           <CInputGroupPrepend>
                             <CInputGroupText>
