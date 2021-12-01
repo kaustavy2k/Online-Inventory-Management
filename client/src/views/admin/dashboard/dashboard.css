@@ -13,3 +13,8 @@
   height: 5px;
   font-size: 14px;
 }
+.limitreport {
+  max-width: 500px;
+  height: 80px;
+  overflow-y: scroll;
+}

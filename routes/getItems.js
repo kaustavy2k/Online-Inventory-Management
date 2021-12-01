@@ -1,14 +1,14 @@
 const express = require("express");
-const getFacilities = require("../controllers/getFacilities");
+const reportsController = require("../controllers/reportsController");
 const authController = require("../controllers/authController");
 const userContoller = require("../controllers/userController");
 const collegeitemsController = require("../controllers/collegeitemsController");
 const transactionitemsController = require("../controllers/transactionitemsController");
 
 const router = express.Router();
-router
-  .route("/main")
-  .get(authController.protect, getFacilities.getAllFacilities);
+// router
+//   .route("/main")
+//   .get(authController.protect, getFacilities.getAllFacilities);
 
 router.route("/login").post(authController.login);
 router.route("/logout").get(authController.logout);
@@ -56,5 +56,18 @@ router
 router
   .route("/updateuser")
   .post(authController.protect, userContoller.updateuser);
+
+router
+  .route("/showreports")
+  .get(authController.protect, reportsController.showitems);
+router
+  .route("/updatereports")
+  .post(authController.protect, reportsController.updateitems);
+router
+  .route("/deletereports")
+  .post(authController.protect, reportsController.deleteitems);
+router
+  .route("/addreports")
+  .post(authController.protect, reportsController.additems);
 
 module.exports = router;

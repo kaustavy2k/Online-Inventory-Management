@@ -1,4 +1,3 @@
-const { request } = require("express");
 const collegeitems = require("../models/collegeitems");
 const transactionitems = require("../models/transactionitems");
 const sendEmail = require("../utils/email");

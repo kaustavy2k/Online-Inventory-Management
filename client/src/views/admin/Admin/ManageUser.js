@@ -16,16 +16,8 @@ class ManageUser extends Component {
       items: [],
       current_page: 1,
       per_page: 5,
-      totalData: 0,
       loading: false,
-      deleted: 0,
-      filterSearch: 0,
-      sortConfig: {
-        key: null,
-        direction: null,
-      },
     };
-    this.searchref = React.createRef();
   }
   users = () => {
     this.setState({ loading: true });
@@ -38,7 +30,6 @@ class ManageUser extends Component {
           loading: false,
           items: [...response.data.items],
           role: response.data.role,
-          filterSearch: 0,
         });
       })
       .catch((error) => {
@@ -62,7 +53,7 @@ class ManageUser extends Component {
           )
           .then((response) => {
             let items = [...response.data.items];
-            this.setState({ filterSearch: 1, items, loading: false });
+            this.setState({ items, loading: false });
           })
           .catch((error) => {
             this.setState({ loading: false });
@@ -99,7 +90,7 @@ class ManageUser extends Component {
           toast.success("Item updated successfully");
         })
         .catch((error) => {
-          this.setState({ loading: false, deleted: 0 });
+          this.setState({ loading: false});
           toast.warning("Some error occured");
         });
     }
@@ -156,7 +147,7 @@ class ManageUser extends Component {
     }
   };
   render() {
-    const { items, current_page, per_page, totalData } = this.state;
+    const { items, current_page, per_page } = this.state;
     return (
       <>
         <ToastContainer />
@@ -171,7 +162,6 @@ class ManageUser extends Component {
                 id="search"
                 className="form-control form-control-lg"
                 placeholder="Search"
-                ref={this.searchref}
                 onChange={this.filterList}
               />
             </fieldset>

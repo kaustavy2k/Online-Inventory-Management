@@ -3,6 +3,7 @@ const AddItems = React.lazy(() => import("./views/admin/Admin/AddItems"));
 const AskItems = React.lazy(() => import("./views/admin/Admin/AskItems"));
 const AddUser = React.lazy(() => import("./views/admin/Admin/AddUser"));
 const ManageUser = React.lazy(() => import("./views/admin/Admin/ManageUser"));
+const Reports = React.lazy(() => import("./views/admin/Admin/Reports"));
 
 const Permissions = React.lazy(() => import("./views/admin/Admin/Permissions"));
 
@@ -329,6 +330,11 @@ const routes = [
     path: "/admin/manage",
     name: "Manage User",
     component: ManageUser,
+  },
+  {
+    path: "/admin/reports",
+    name: "Reports",
+    component: Reports,
   },
 ];
 

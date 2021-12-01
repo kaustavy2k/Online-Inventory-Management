@@ -10,7 +10,7 @@ exports.showitems = async (req, res) => {
         ],
       });
     } else {
-      items = await users.find();
+      items = await users.find().sort({ _id: -1 });
     }
     if (items.length != 0) {
       res.status(200).json({
