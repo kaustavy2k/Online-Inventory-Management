@@ -217,6 +217,21 @@ const _nav = [
         name: "Ask For Items",
         to: `/admin/ask-item`,
       },
+      {
+        _tag: "CSidebarNavItem",
+        name: "Add User",
+        to: `/admin/add-user`,
+      },
+      {
+        _tag: "CSidebarNavItem",
+        name: "Manage User",
+        to: `/admin/manage`,
+      },
+      {
+        _tag: "CSidebarNavItem",
+        name: "Reports",
+        to: `/admin/reports`,
+      }
     ],
   },
   {

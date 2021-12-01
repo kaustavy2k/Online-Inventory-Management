@@ -4,7 +4,6 @@ import { Redirect, Route, Switch } from "react-router-dom";
 import { CContainer, CFade } from "@coreui/react";
 import routes from "../routes";
 const TheContent = (props) => {
-  const redirectUrl = props.match.url + "/dashboard";
   return (
     <main className="c-main">
       <CContainer fluid>

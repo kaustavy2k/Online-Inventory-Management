@@ -2,7 +2,7 @@ import React,{useState} from 'react'
 import { CFooter } from '@coreui/react'
 
 const TheFooter = () => {
-  const[year,setyear]=useState(new Date().getFullYear())
+  const[year]=useState(new Date().getFullYear())
   return (
     <CFooter fixed={false}>
       <div>

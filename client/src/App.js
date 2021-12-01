@@ -9,8 +9,6 @@ import SimpleReactLightbox from "simple-react-lightbox";
 const TheLayout = React.lazy(() => import("./containers/TheLayout"));
 const Login = React.lazy(() => import("./views/admin/login-signup/Login"));
 const Signup = React.lazy(() => import("./views/admin/login-signup/Signup"));
-const ADMIN = "/admin";
-
 function ProtectedRoute({ component: Component, ...restOfProps }) {
   const isAuthenticated = JSON.parse(localStorage.getItem("client"))._id;
   return (

@@ -16,7 +16,6 @@ import CIcon from '@coreui/icons-react'
 
 // sidebar nav config
 import navigation from './_nav'
-import navigationAuthor from './_navAuthor'
 import {bsaLogo_admin} from '../assets/images'
 // var AuthData = JSON.parse(localStorage.getItem("AuthData")); 
 const TheSidebar = () => {
@@ -41,7 +40,7 @@ const TheSidebar = () => {
           name="logo-negative"
           height={35}
         /> */}
-        <img src={bsaLogo_admin} height={35} style={{background:"white"}}/>
+        <img src={bsaLogo_admin} height={35} style={{background:"white"}} alt="Bppimt Logo"/>
         <CIcon
           className="c-sidebar-brand-minimized"
           name="sygnet"

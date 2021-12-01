@@ -202,6 +202,9 @@ class Signup extends Component {
                             name="name"
                           />
                         </CInputGroup>
+                        <div style={{ color: "red" }}>
+                          {this.state.errors["name"]}
+                        </div>
                         <CInputGroup className="mb-3">
                           <CInputGroupPrepend>
                             <CInputGroupText>

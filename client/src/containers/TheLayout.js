@@ -5,15 +5,7 @@ import {
   TheFooter,
   TheHeader
 } from './index'
-import {
-  Redirect,
-} from 'react-router-dom'
-
-const retrieveAuthData = JSON.parse(localStorage.getItem('AuthData'));
-
 const TheLayout = (props) => {
-const redirectUrl = props.match.url+"/login";
-
 // if(retrieveAuthData!==null)
 // {
   return (

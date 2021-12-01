@@ -314,7 +314,7 @@ class Dashboard extends Component {
                     <th>Action</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody >
                   {items.map((item, i) => (
                     <tr key={i}>
                       <td>{(current_page - 1) * per_page + (i + 1)}</td>
@@ -332,7 +332,7 @@ class Dashboard extends Component {
                           onClick={this.edititem.bind(this, item)}
                           size="sm"
                           color="primary"
-                          disabled={!this.state.role === "Admin"}
+                          disabled={this.state.role !== "admin"}
                         >
                           Edit
                         </CButton>
@@ -342,7 +342,7 @@ class Dashboard extends Component {
                           onClick={this.deleteitem.bind(this, item._id)}
                           size="sm"
                           color="danger"
-                          disabled={!this.state.role === "Admin"}
+                          disabled={this.state.role !== "admin"}
                         >
                           Delete
                         </CButton>

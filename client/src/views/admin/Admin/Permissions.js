@@ -5,12 +5,20 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../dashboard/dashboard.css";
-import "react-date-range/dist/theme/default.css";
+import StripeCheckout from "react-stripe-checkout";
 let timer;
 class Permissions extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      username: "",
+      useremail: "",
+      quantityerr: "",
+      nameerr: "",
+      name: "",
+      quantity: "",
+      currid: {},
+      show: false,
       items: [],
       current_page: 1,
       per_page: 5,
@@ -26,12 +34,12 @@ class Permissions extends Component {
     this.searchref = React.createRef();
   }
   transactionitems = () => {
+    this.setState({ loading: true });
     axios
       .get(`${process.env.REACT_APP_API_URL}/showtransactionitems`, {
         withCredentials: true,
       })
       .then((response) => {
-        console.log(response.data.items);
         this.setState({
           loading: false,
           items: [...response.data.items],
@@ -71,7 +79,8 @@ class Permissions extends Component {
     }
   };
   componentDidMount() {
-    this.setState({ loading: true });
+    var user = JSON.parse(localStorage.getItem("client"));
+    this.setState({ username: user.name, useremail: user.email });
     this.transactionitems();
   }
   componentDidUpdate(prevprops, prevState) {
@@ -122,6 +131,48 @@ class Permissions extends Component {
     this.setState({ nameerr, quantityerr });
     return formIsValid;
   };
+  edititem = (id) => {
+    this.setState((prevstate) => {
+      return {
+        show: !prevstate.show,
+        currid: id,
+        name: id.item,
+        quantity: id.quantity,
+      };
+    });
+  };
+  handleChangeInput = (event) => {
+    this.setState({
+      [event.target.name]: event.target.value,
+      [event.target.name + "err"]: "",
+    });
+  };
+  alter = (val, id) => {
+    let cnfirm = false;
+
+    cnfirm = window.confirm(`Do you confirm your action?`);
+    if(cnfirm)
+    {
+      this.setState({ loading: true });
+      axios
+        .post(
+          `${process.env.REACT_APP_API_URL}/updatetransactionitems`,
+          { status: val, _id: id },
+          {
+            withCredentials: true,
+          }
+        )
+        .then((response) => {
+          console.log(response.data.items);
+          this.transactionitems();
+        })
+        .catch((error) => {
+          this.setState({ loading: false });
+          console.log("error response", error);
+          toast.warning("Some error occured!");
+        });
+    }
+  };
   handleEdit = (e) => {
     if (this.validate()) {
       this.setState({ loading: true });
@@ -131,6 +182,7 @@ class Permissions extends Component {
         _id: this.state.currid._id,
         item: this.state.name,
         quantity: this.state.quantity,
+        flag: 1,
       };
       axios
         .post(`${process.env.REACT_APP_API_URL}/updatetransactionitems`, data, {
@@ -146,10 +198,92 @@ class Permissions extends Component {
         });
     }
   };
+  payment = (total, id, item, quantity, token) => {
+    this.setState({ loading: true });
+    axios
+      .post(
+        `${process.env.REACT_APP_API_URL}/paytransactionitems`,
+        {
+          token,
+          total,
+          id,
+          item,
+          quantity,
+        },
+        { withCredentials: true }
+      )
+      .then((res) => {
+        toast.success("Payment Successful!");
+        this.transactionitems();
+      })
+      .catch((err) => {
+        this.setState({ loading: false });
+        toast.warn("Some error occured!");
+      });
+  };
   render() {
     const { items, current_page, per_page, totalData } = this.state;
     return (
       <>
+        <Modal
+          show={this.state.show}
+          onHide={this.edititem.bind(this, "")}
+          animation={false}
+          size="lg"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Edit Item </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="card">
+              <div className="card-body">
+                <div>
+                  <div className="row">
+                    <div className="col-md-12">
+                      <div className="form-group">
+                        <label>Name*</label>
+                        <input
+                          defaultValue={this.state.currid.item}
+                          name="name"
+                          onChange={this.handleChangeInput}
+                          autoComplete="off"
+                          className="form-control"
+                          placeholder="Enter name"
+                          type="text"
+                        />
+                        <div className="text-danger">{this.state.nameerr}</div>
+                      </div>
+                    </div>
+                    <div className="col-md-12">
+                      <div className="row">
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label>Quantity*</label>
+                            <input
+                              defaultValue={this.state.currid.quantity}
+                              name="quantity"
+                              onChange={this.handleChangeInput}
+                              autoComplete="off"
+                              className="form-control"
+                              placeholder="Enter Quantity"
+                              type="number"
+                            />
+                            <div className="text-danger">
+                              {this.state.quantityerr}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <button className="btn btn-primary" onClick={this.handleEdit}>
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </div>
+          </Modal.Body>
+        </Modal>
         <ToastContainer />
         <LoadingOverlay
           active={this.state.loading}
@@ -192,6 +326,7 @@ class Permissions extends Component {
                     <th scope="col">Requested By</th>
                     <th scope="col">Quantity</th>
                     <th scope="col">Status</th>
+                    <th scope="col">Cost (INR)</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -211,7 +346,12 @@ class Permissions extends Component {
                         </div>
                       </td>
                       <td>
-                        <div>{item.status}</div>
+                        <div>
+                          {item.status} (by {item.statusby})
+                        </div>
+                      </td>
+                      <td>
+                        <div>{item.cost}</div>
                       </td>
                       <td>
                         <Dropdown>
@@ -224,7 +364,13 @@ class Permissions extends Component {
 
                           <Dropdown.Menu>
                             <Dropdown.Item
+                              onClick={this.alter.bind(
+                                this,
+                                "approved",
+                                item._id
+                              )}
                               disabled={
+                                item.status === "payment in progress" ||
                                 item.status === "approved" ||
                                 item.status === "paid" ||
                                 item.status === "available now"
@@ -233,6 +379,11 @@ class Permissions extends Component {
                               Approve
                             </Dropdown.Item>
                             <Dropdown.Item
+                              onClick={this.alter.bind(
+                                this,
+                                "denied",
+                                item._id
+                              )}
                               disabled={
                                 item.status === "denied" ||
                                 item.status === "paid" ||
@@ -242,29 +393,43 @@ class Permissions extends Component {
                               Deny
                             </Dropdown.Item>
                             <Dropdown.Item
+                              onClick={this.alter.bind(
+                                this,
+                                "payment in progress",
+                                item._id
+                              )}
                               disabled={
+                                item.status === "denied" ||
                                 item.status === "paid" ||
                                 item.status === "payment in progress" ||
                                 item.status === "available now" ||
-                                item.status === "inspection"
+                                item.status === "requested"
                               }
                             >
                               Request Payment
                             </Dropdown.Item>
                             <Dropdown.Item
-                              disabled={
-                                item.status === "paid" ||
-                                item.status === "available now" ||
-                                item.status === "payment in progress" ||
-                                item.status === "inspection"
-                              }
+                              disabled={item.status !== "available now"}
                             >
-                              Pay Now
+                              <StripeCheckout
+                                stripeKey="pk_test_51JISvASGTGDeZiN2L6dVpSBtCCkfDMDwuR4WwUyLmDRksGsR2eRIraXliSHHKbtDyAlU89yVuxYmEKGGJOd1mZKk00YlteVhG5"
+                                token={this.payment.bind(
+                                  this,
+                                  item.cost,
+                                  item._id,
+                                  item.item,
+                                  item.quantity
+                                )}
+                                name={this.state.username}
+                                email={this.state.useremail}
+                              >
+                                Pay Now
+                              </StripeCheckout>
                             </Dropdown.Item>
                             <Dropdown.Item
+                              onClick={this.edititem.bind(this, item)}
                               disabled={
                                 item.status === "paid" ||
-                                item.status === "payment in progress" ||
                                 item.status === "available now"
                               }
                             >

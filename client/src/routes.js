@@ -1,6 +1,8 @@
 import React from "react";
 const AddItems = React.lazy(() => import("./views/admin/Admin/AddItems"));
 const AskItems = React.lazy(() => import("./views/admin/Admin/AskItems"));
+const AddUser = React.lazy(() => import("./views/admin/Admin/AddUser"));
+const ManageUser = React.lazy(() => import("./views/admin/Admin/ManageUser"));
 
 const Permissions = React.lazy(() => import("./views/admin/Admin/Permissions"));
 
@@ -92,7 +94,6 @@ const UpdateProfile = React.lazy(() =>
   import("./views/admin/user/Updateprofile")
 );
 const EditUser = React.lazy(() => import("./views/admin/user/Edituser"));
-const AddUser = React.lazy(() => import("./views/admin/user/AddUser"));
 
 const SurveyList = React.lazy(() => import("./views/admin/survey/survey"));
 const AddSurvey = React.lazy(() =>
@@ -318,6 +319,16 @@ const routes = [
     path: "/admin/permissions",
     name: "Permissions/Status",
     component: Permissions,
+  },
+  {
+    path: "/admin/add-user",
+    name: "Add User",
+    component: AddUser,
+  },
+  {
+    path: "/admin/manage",
+    name: "Manage User",
+    component: ManageUser,
   },
 ];
 

@@ -29,38 +29,63 @@ class Login extends Component {
       password: "",
       error: "",
       loading: false,
+      passworderr: "",
+      emailerr: "",
+      serverErr:""
     };
   }
   handleChange = (event) => {
-    this.setState({ error: "", [event.target.name]: event.target.value });
+    this.setState({
+      error: "",
+      [event.target.name]: event.target.value,
+      [event.target.name + "err"]: "",
+    });
+  };
+  validate = () => {
+    let formIsValid = true;
+    let emailerr = "";
+    let passworderr = "";
+    if (!this.state.email) {
+      formIsValid = false;
+      emailerr = "Cannot be empty";
+    }
+
+    if (!this.state.password) {
+      formIsValid = false;
+      passworderr = "Cannot be empty";
+    }
+    this.setState({ emailerr, passworderr });
+    return formIsValid;
   };
   clickSubmit = (event) => {
     event.preventDefault();
-    this.setState({ loading: true });
-    const { email, password } = this.state;
-    const user = {
-      email,
-      password,
-    };
-    axios
-      .post(`${process.env.REACT_APP_API_URL}/login`, user, {
-        withCredentials: true,
-      })
-      .then((data) => {
-        localStorage.setItem("client", JSON.stringify(data.data.data.user));
-        this.props.history.push({
-          pathname: "/dashboard",
+    if (this.validate()) {
+      this.setState({ loading: true });
+      const { email, password } = this.state;
+      const user = {
+        email,
+        password,
+      };
+      axios
+        .post(`${process.env.REACT_APP_API_URL}/login`, user, {
+          withCredentials: true,
+        })
+        .then((data) => {
+          localStorage.setItem("client", JSON.stringify(data.data.data.user));
+          this.props.history.push({
+            pathname: "/dashboard",
+          });
+        })
+        .catch((err) => {
+          let msg = err.response.data.message;
+          console.log(msg);
+          this.setState({
+            serverErr: msg,
+            loading: false,
+          });
+          toast.warning("Some error occured!");
         });
-      })
-      .catch((err) => {
-        let msg = err.response.data.message;
-        console.log(msg);
-        this.setState({
-          serverErr: msg,
-          loading: false,
-        });
-        toast.warning("Some error occured!");
-      });
+    }
   };
   _handleKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -105,6 +130,7 @@ class Login extends Component {
                             name="email"
                           />
                         </CInputGroup>
+                        <div className="text-danger">{this.state.emailerr}</div>
                         <CInputGroup className="mb-4">
                           <CInputGroupPrepend>
                             <CInputGroupText>
@@ -119,6 +145,9 @@ class Login extends Component {
                             name="password"
                           />
                         </CInputGroup>
+                        <div style={{ color: "red" }}>
+                          {this.state.passworderr}
+                        </div>
                         <div style={{ color: "red" }}>
                           {this.state.serverErr}
                         </div>
@@ -149,11 +178,13 @@ class Login extends Component {
                   >
                     <CCardBody className="text-center">
                       <div>
-                        <h2>BSA</h2>
+                        <h2>Online Inventory Management (BPPIMT)</h2>
                         <p>
-                          Lorem ipsum dolor sit amet, consectetur adipisicing
-                          elit, sed do eiusmod tempor incididunt ut labore et
-                          dolore magna aliqua.
+                          This project is designed for our college, B.P. Poddar
+                          Institute of Management & Technology, Kolkata. The
+                          product will help to maintain data & record of
+                          software and hardware equipment present in various
+                          labs.
                         </p>
                       </div>
                     </CCardBody>
