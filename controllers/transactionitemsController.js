@@ -1,6 +1,5 @@
 const collegeitems = require("../models/collegeitems");
 const transactionitems = require("../models/transactionitems");
-const sendEmail = require("../utils/email");
 const stripe = require("stripe")(
   "sk_test_51JISvASGTGDeZiN2lrEjvnv8Y8z8dzVYgAvqypudsuORQdIUVZvDkA05VMR9aU35jw5lDQUVzMVRSsEr24MzkmnH00VR1nMvcf"
 );
@@ -71,6 +70,7 @@ exports.deleteitems = async (req, res) => {
       res.status(200).json({
         message: "College items",
         items: [],
+        totalitems: 0,
       });
     }
   } catch (err) {
@@ -120,14 +120,13 @@ exports.updateitems = async (req, res) => {
 };
 exports.payment = async (req, res) => {
   try {
-    console.log(req.body);
     const { token, total } = req.body;
     const customer = await stripe.customers.create({
       email: token.email,
       source: token.id,
     });
     const idempotencyKey = uuidv4();
-    const charge = await stripe.charges.create(
+    await stripe.charges.create(
       {
         amount: total * 84,
         currency: "inr",
@@ -163,11 +162,12 @@ exports.payment = async (req, res) => {
       item: req.body.item,
     });
     if (items.length) {
+      let total = items.quantity + req.body.quantity;
       await collegeitems.updateOne(
         { _id: items._id },
         {
           $set: {
-            quantity: items.quantity + req.body.quantity,
+            quantity: items[0].quantity + req.body.quantity,
           },
         }
       );
@@ -177,7 +177,6 @@ exports.payment = async (req, res) => {
         quantity: req.body.quantity,
       });
     }
-    console.log(items);
     return res.status(200).json({
       status: "success",
     });

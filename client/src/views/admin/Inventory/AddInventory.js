@@ -19,11 +19,11 @@ import {
 } from "@coreui/react";
 import CIcon from "@coreui/icons-react";
 
-class AddItems extends Component {
+class AddInventory extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      add: [{ item: "", quantity: "" }],
+      add: [{ item: "", cost: "",quantity:"" }],
       loading: false,
       err: "",
     };
@@ -35,7 +35,6 @@ class AddItems extends Component {
       [event.target.value + "err"]: "",
     });
   };
-
   addController = (e) => {
     let add = [...this.state.add];
     let className = e.target.name;
@@ -46,7 +45,7 @@ class AddItems extends Component {
 
   add = () => {
     this.setState((prevState) => ({
-      add: [...prevState.add, { name: "", quantity: "" }],
+      add: [...prevState.add, { name: "", cost: "",quantity:"" }],
     }));
   };
   clickSubmit = (event) => {
@@ -57,7 +56,7 @@ class AddItems extends Component {
         data: this.state.add,
       };
       axios
-        .post(`${process.env.REACT_APP_API_URL}/addcollegeitems`, data, {
+        .post(`${process.env.REACT_APP_API_URL}/addinventoryitems`, data, {
           withCredentials: true,
         })
         .then((response) => {
@@ -65,7 +64,7 @@ class AddItems extends Component {
           this.setState({ loading: false });
           setTimeout(() => {
             this.props.history.push({
-              pathname: "/dashboard",
+              pathname: "/inventory/items",
             });
           }, 1500);
         })
@@ -80,7 +79,7 @@ class AddItems extends Component {
     let formIsValid = true;
     let err = "";
     for (let i of this.state.add) {
-      if (!i.item.length || !i.quantity.length) {
+      if (!i.item.length || !i.cost.length|| !i.quantity.length) {
         formIsValid = false;
         err = "Please fill all data";
         break;
@@ -91,7 +90,7 @@ class AddItems extends Component {
   };
   reset = () => {
     this.setState({
-      add: [{ item: "", quantity: "" }],
+      add: [{ item: "", cost: "",quantity:"" }],
       loading: false,
       err: "",
     });
@@ -133,6 +132,18 @@ class AddItems extends Component {
                             onChange={this.handleChange}
                             data-id={ind}
                             value={i.quantity}
+                          />
+                        </CFormGroup>
+                        <CFormGroup>
+                          <CLabel>Cost*</CLabel>
+                          <CInput
+                            name="cost "
+                            type="number"
+                            autoComplete="off"
+                            placeholder="Enter cost"
+                            onChange={this.handleChange}
+                            data-id={ind}
+                            value={i.cost}
                           />
                         </CFormGroup>
                       </CForm>
@@ -178,4 +189,4 @@ class AddItems extends Component {
   }
 }
 
-export default AddItems;
+export default AddInventory;

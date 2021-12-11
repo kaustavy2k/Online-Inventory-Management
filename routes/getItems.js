@@ -4,11 +4,10 @@ const authController = require("../controllers/authController");
 const userContoller = require("../controllers/userController");
 const collegeitemsController = require("../controllers/collegeitemsController");
 const transactionitemsController = require("../controllers/transactionitemsController");
+const inventoryitemsController = require("../controllers/inventoryitemsController");
 
 const router = express.Router();
-// router
-//   .route("/main")
-//   .get(authController.protect, getFacilities.getAllFacilities);
+
 
 router.route("/login").post(authController.login);
 router.route("/logout").get(authController.logout);
@@ -26,6 +25,20 @@ router
 router
   .route("/updatecollegeitems")
   .post(authController.protect, collegeitemsController.updateitems);
+
+  router
+  .route("/addinventoryitems")
+  .post(authController.protect, inventoryitemsController.additems);
+router
+  .route("/deleteinventoryitems/:id")
+  .get(authController.protect, inventoryitemsController.deleteitems);
+router
+  .route("/showinventoryitems")
+  .get(authController.protect, inventoryitemsController.showitems);
+router
+  .route("/updateinventoryitems")
+  .post(authController.protect, inventoryitemsController.updateitems);
+
 
 router
   .route("/addtransactionitems")
@@ -64,8 +77,8 @@ router
   .route("/updatereports")
   .post(authController.protect, reportsController.updateitems);
 router
-  .route("/deletereports")
-  .post(authController.protect, reportsController.deleteitems);
+  .route("/deletereports/:id")
+  .get(authController.protect, reportsController.deleteitems);
 router
   .route("/addreports")
   .post(authController.protect, reportsController.additems);

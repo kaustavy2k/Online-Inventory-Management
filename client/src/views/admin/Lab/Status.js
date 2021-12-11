@@ -5,9 +5,10 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../Dashboard/dashboard.css";
-import StripeCheckout from "react-stripe-checkout";
+import { CButton } from "@coreui/react";
+
 let timer;
-class Permissions extends Component {
+class Status extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -147,31 +148,6 @@ class Permissions extends Component {
       [event.target.name + "err"]: "",
     });
   };
-  alter = (val, id) => {
-    let cnfirm = false;
-
-    cnfirm = window.confirm(`Do you confirm your action?`);
-    if (cnfirm) {
-      this.setState({ loading: true });
-      axios
-        .post(
-          `${process.env.REACT_APP_API_URL}/updatetransactionitems`,
-          { status: val, _id: id },
-          {
-            withCredentials: true,
-          }
-        )
-        .then((response) => {
-          console.log(response.data.items);
-          this.transactionitems();
-        })
-        .catch((error) => {
-          this.setState({ loading: false });
-          console.log("error response", error);
-          toast.warning("Some error occured!");
-        });
-    }
-  };
   handleEdit = (e) => {
     if (this.validate()) {
       this.setState({ loading: true });
@@ -197,28 +173,27 @@ class Permissions extends Component {
         });
     }
   };
-  payment = (total, id, item, quantity, token) => {
-    this.setState({ loading: true });
-    axios
-      .post(
-        `${process.env.REACT_APP_API_URL}/paytransactionitems`,
-        {
-          token,
-          total,
-          id,
-          item,
-          quantity,
-        },
-        { withCredentials: true }
-      )
-      .then((res) => {
-        toast.success("Payment Successful!");
-        this.transactionitems();
-      })
-      .catch((err) => {
-        this.setState({ loading: false });
-        toast.warn("Some error occured!");
-      });
+  delete = (id) => {
+    let cnfirm = false;
+
+    cnfirm = window.confirm(`Are you sure you want to delete this item?`);
+
+    if (cnfirm) {
+      this.setState({ loading: true });
+      axios
+        .get(`${process.env.REACT_APP_API_URL}/deletetransactionitems/${id}`, {
+          withCredentials: true,
+        })
+        .then((res) => {
+          this.transactionitems();
+
+          toast.success("Item deleted successfully");
+        })
+        .catch((error) => {
+          this.setState({ loading: false });
+          toast.warning("Some error occured");
+        });
+    }
   };
   render() {
     const { items, current_page, per_page } = this.state;
@@ -337,7 +312,7 @@ class Permissions extends Component {
                         <div>{item.item}</div>
                       </td>
                       <td>
-                        <div>{item.initiatedby ? item.initiatedby : "--"}</div>
+                        <div>{item.initiatedby}</div>
                       </td>
                       <td>
                         <div>
@@ -353,83 +328,21 @@ class Permissions extends Component {
                         <div>{item.cost}</div>
                       </td>
                       <td>
-                        <Dropdown>
-                          <Dropdown.Toggle
-                            variant="secondary"
-                            id="dropdown-basic"
-                          >
-                            Select Action
-                          </Dropdown.Toggle>
-
-                          <Dropdown.Menu>
-                            <Dropdown.Item
-                              onClick={this.alter.bind(
-                                this,
-                                "approved",
-                                item._id
-                              )}
-                              disabled={
-                                item.status === "payment in progress" ||
-                                item.status === "approved" ||
-                                item.status === "paid" ||
-                                item.status === "available now"
-                              }
-                            >
-                              Approve
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                              onClick={this.alter.bind(
-                                this,
-                                "denied",
-                                item._id
-                              )}
-                              disabled={
-                                item.status === "denied" ||
-                                item.status === "paid" ||
-                                item.status === "available now"
-                              }
-                            >
-                              Deny
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                              onClick={this.alter.bind(
-                                this,
-                                "payment in progress",
-                                item._id
-                              )}
-                              disabled={item.status !== "available now"}
-                            >
-                              Request Payment
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                              disabled={item.status !== "available now"}
-                            >
-                              <StripeCheckout
-                                stripeKey="pk_test_51JISvASGTGDeZiN2L6dVpSBtCCkfDMDwuR4WwUyLmDRksGsR2eRIraXliSHHKbtDyAlU89yVuxYmEKGGJOd1mZKk00YlteVhG5"
-                                token={this.payment.bind(
-                                  this,
-                                  item.cost,
-                                  item._id,
-                                  item.item,
-                                  item.quantity
-                                )}
-                                name={this.state.username}
-                                email={this.state.useremail}
-                              >
-                                Pay Now
-                              </StripeCheckout>
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                              onClick={this.edititem.bind(this, item)}
-                              disabled={
-                                item.status === "paid" ||
-                                item.status === "available now"
-                              }
-                            >
-                              Edit Item
-                            </Dropdown.Item>
-                          </Dropdown.Menu>
-                        </Dropdown>
+                        <CButton
+                          color="primary"
+                          onClick={this.edititem.bind(this, item)}
+                          disabled={item.status !== "requested"}
+                        >
+                          Edit
+                        </CButton>
+                        &nbsp;
+                        <CButton
+                          color="danger"
+                          onClick={this.delete.bind(this, item._id)}
+                          disabled={item.status !== "requested"}
+                        >
+                          Delete
+                        </CButton>
                       </td>
                     </tr>
                   ))}
@@ -443,4 +356,4 @@ class Permissions extends Component {
   }
 }
 
-export default Permissions;
+export default Status;

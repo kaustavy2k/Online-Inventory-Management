@@ -1,12 +1,10 @@
 import React, { Component } from "react";
-import { Spinner, Dropdown, Modal } from "react-bootstrap";
+import { Spinner } from "react-bootstrap";
 import LoadingOverlay from "react-loading-overlay";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "../dashboard/dashboard.css";
-import { CButton } from "@coreui/react";
-let timer;
+import "../Dashboard/dashboard.css";
 class Report extends Component {
   constructor(props) {
     super(props);

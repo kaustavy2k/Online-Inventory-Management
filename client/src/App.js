@@ -3,7 +3,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./app.css";
 import "./scss/style.scss";
 import BeatLoader from "react-spinners/BeatLoader";
-
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import SimpleReactLightbox from "simple-react-lightbox";
 const TheLayout = React.lazy(() => import("./containers/TheLayout"));

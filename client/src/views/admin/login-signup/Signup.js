@@ -83,7 +83,7 @@ class Signup extends Component {
         !(
           lastAtPos < lastDotPos &&
           lastAtPos > 0 &&
-          this.state.email.indexOf("@@") == -1 &&
+          this.state.email.indexOf("@@") === -1 &&
           lastDotPos > 2 &&
           this.state.email.length - lastDotPos > 2
         )

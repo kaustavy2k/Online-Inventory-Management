@@ -42,6 +42,7 @@ exports.showitems = async (req, res) => {
 };
 exports.deleteitems = async (req, res) => {
   try {
+    console.log(req.params.id)
     await reportitems.findOneAndDelete({ _id: req.params.id });
     const items = await reportitems.find();
     if (items.length != 0) {

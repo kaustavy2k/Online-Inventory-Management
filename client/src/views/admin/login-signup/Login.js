@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Link, Redirect } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Spinner } from "react-bootstrap";
 import LoadingOverlay from "react-loading-overlay";
 import { toast, ToastContainer } from "react-toastify";

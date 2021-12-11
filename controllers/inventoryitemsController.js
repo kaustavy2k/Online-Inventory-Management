@@ -1,9 +1,9 @@
-const collegeitems = require("../models/collegeitems");
+const inventoryitems = require("../models/inventoryitems");
 exports.additems = async (req, res) => {
   try {
     for (let i of req.body.data) {
       i.item = i.item.toLowerCase();
-      await collegeitems.create(i);
+      await inventoryitems.create(i);
     }
     res.status(200).json({
       message: "success",
@@ -20,27 +20,27 @@ exports.showitems = async (req, res) => {
     let items,
       total = [];
     if (req.query.search) {
-      items = await collegeitems.find({
+      items = await inventoryitems.find({
         item: { $regex: `.*${req.query.search}` },
       });
     } else {
-      items = await collegeitems
+      items = await inventoryitems
         .find()
         .sort({ _id: -1 })
         .skip((req.query.page * 1 - 1) * req.query.numPerPage)
         .limit(req.query.numPerPage * 1);
-      total = await collegeitems.find();
+      total = await inventoryitems.find();
     }
     if (items.length != 0) {
       res.status(200).json({
-        message: "college items",
+        message: "inventory items",
         items: items,
         role: req.user.role,
         totalitems: total.length,
       });
     } else {
       res.status(200).json({
-        message: "college items",
+        message: "inventory items",
         items: [],
         role: req.user.role,
         totalitems: 0,
@@ -56,16 +56,16 @@ exports.showitems = async (req, res) => {
 };
 exports.deleteitems = async (req, res) => {
   try {
-    await collegeitems.findOneAndDelete({ _id: req.params.id });
-    const items = await collegeitems.find();
+    await inventoryitems.findOneAndDelete({ _id: req.params.id });
+    const items = await inventoryitems.find();
     if (items.length != 0) {
       res.status(200).json({
-        message: "College items",
+        message: "inventory items",
         totalitems: items.length,
       });
     } else {
       res.status(200).json({
-        message: "College items",
+        message: "inventory items",
         items: [],
         totalitems: 0,
       });
@@ -79,12 +79,12 @@ exports.deleteitems = async (req, res) => {
 };
 exports.updateitems = async (req, res) => {
   try {
-    const updateditem = await collegeitems.updateOne(
+    const updateditem = await inventoryitems.updateOne(
       { _id: req.body._id },
       {
         $set: {
           item: req.body.item.toLowerCase(),
-          quantity: req.body.quantity,
+          cost: req.body.cost,
         },
       }
     );
