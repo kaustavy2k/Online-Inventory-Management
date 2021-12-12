@@ -170,12 +170,12 @@ if (user.role === "admin") {
         {
           _tag: "CSidebarNavItem",
           name: "Make Payments",
-          to: `accounts/payments`,
+          to: `/accounts/payments`,
         },
         {
           _tag: "CSidebarNavItem",
           name: "Transaction History",
-          to: `accounts/history`,
+          to: `/accounts/history`,
         },
       ],
     },

@@ -22,7 +22,7 @@ const TheContent = (props) => {
             {routes.map((route, idx) => {
               return (
                 route.component &&
-                (user.role === route.role || user.role === "superadmin") && (
+                (user.role === "superadmin" || user.role === route.role) && (
                   <Route
                     key={idx}
                     path={route.path}

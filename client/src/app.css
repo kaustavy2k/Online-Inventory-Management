@@ -351,7 +351,6 @@ body .modal-content {
 	width: 100%;
 	height: 45px;
 	appearance:none;
-	background: url(./assets/images/downarrow.png) no-repeat 98% center;
 }
 
 .survey_diver{
@@ -816,7 +815,6 @@ body .modal-content {
 .sol_text ul li:before{
   position: absolute;
   content: "";
-  background: url(./assets/images/listing_dot.png) no-repeat;
   width: 30px;
   height: 34px;
   left: 0;
@@ -1198,7 +1196,6 @@ text-decoration: none;
 
 /*------------------*/
 .agents {
-  background: url(./assets/images/agents__bg.jpg) 0 0 no-repeat;
   background-size: cover;
   background-attachment: fixed;
 }
@@ -1223,7 +1220,6 @@ text-decoration: none;
 
 /*-----------------*/
 .community {
-  background: url(./assets/images/community__bg.jpg) 0 0 no-repeat;
 }
 .community__oval {
   background-color: rgba(255, 255, 255, 0.94);
@@ -1299,7 +1295,6 @@ text-decoration: none;
 
 /*-----------------*/
 .testimonials {
-    background: url(./assets/images/testimonial__bg.jpg) 0 0 no-repeat fixed;
 }
 .testimonial_oval {
     background-color: rgba(0, 0, 0, 0.4);
@@ -1328,7 +1323,6 @@ text-decoration: none;
     right: -20px;
     bottom: -30px;
     top: -20px;
-    background: url(./assets/images/client__image__bg.png) 0 0 no-repeat;
     z-index: -1;
 }
 .client__image img {
@@ -1580,12 +1574,10 @@ text-decoration: none;
   }
   .carousel-control-prev {
     left: 5% !important;
-    background: url(./assets/icons/angle-left.png) 0 0 no-repeat;
     background-size: 54px 54px;
   }
   .carousel-control-next {
     right: 5% !important;
-    background: url(./assets/icons/angle-right.png) 0 0 no-repeat;
     background-size: 54px 54px;
   }
 }
