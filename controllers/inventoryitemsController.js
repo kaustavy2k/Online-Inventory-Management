@@ -79,15 +79,33 @@ exports.deleteitems = async (req, res) => {
 };
 exports.updateitems = async (req, res) => {
   try {
-    const updateditem = await inventoryitems.updateOne(
-      { _id: req.body._id },
-      {
-        $set: {
-          item: req.body.item.toLowerCase(),
-          cost: req.body.cost,
-        },
+    let updateditem;
+    if (req.body.flag === 1) {
+      let items = await inventoryitems.find({
+        item: req.body.item,
+      });
+      if (items.length) {
+        updateditem = await inventoryitems.updateOne(
+          { item: req.body.item },
+          {
+            $set: {
+              quantity: items[0].quantity - req.body.quantity,
+            },
+          }
+        );
       }
-    );
+    } else {
+      updateditem = await inventoryitems.updateOne(
+        { _id: req.body._id },
+        {
+          $set: {
+            item: req.body.item.toLowerCase(),
+            cost: req.body.cost,
+            quantity: req.body.quantity,
+          },
+        }
+      );
+    }
 
     res.status(200).json({
       status: "success",
@@ -96,6 +114,7 @@ exports.updateitems = async (req, res) => {
       },
     });
   } catch (err) {
+    console.log(err);
     return res.status(500).json({
       status: "failure",
       message: err,

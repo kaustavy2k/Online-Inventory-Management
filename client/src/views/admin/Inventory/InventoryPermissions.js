@@ -5,7 +5,6 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../Dashboard/dashboard.css";
-import StripeCheckout from "react-stripe-checkout";
 import { CButton } from "@coreui/react";
 
 class InventoryPermissions extends Component {
@@ -24,14 +23,36 @@ class InventoryPermissions extends Component {
   }
   transactionitems = () => {
     this.setState({ loading: true });
-    axios
-      .get(`${process.env.REACT_APP_API_URL}/showtransactionitems`, {
+    Promise.all([
+      axios.get(`${process.env.REACT_APP_API_URL}/showtransactionitems`, {
         withCredentials: true,
-      })
+      }),
+      axios.get(`${process.env.REACT_APP_API_URL}/showinventoryitems`, {
+        withCredentials: true,
+      }),
+    ])
       .then((response) => {
+        let items = [];
+        for (let i of response[0].data.items) {
+          let flag = 0;
+          for (let j of response[1].data.items) {
+            if (i.item === j.item) {
+              flag = 1;
+              i.costperitem = j.cost;
+              i.availability = j.quantity;
+              items.push(i);
+              break;
+            }
+          }
+          if (flag === 0) {
+            i.costperitem = "--";
+            i.availability = 0;
+            items.push(i);
+          }
+        }
         this.setState({
           loading: false,
-          items: [...response.data.items],
+          items: [...items],
           filterSearch: 0,
         });
       })
@@ -48,7 +69,7 @@ class InventoryPermissions extends Component {
     this.transactionitems();
   }
 
-  alter = (val, id) => {
+  alter = (val, id, item, quantity, costperitem) => {
     let cnfirm = false;
 
     cnfirm = window.confirm(`Do you confirm your action?`);
@@ -57,13 +78,21 @@ class InventoryPermissions extends Component {
       axios
         .post(
           `${process.env.REACT_APP_API_URL}/updatetransactionitems`,
-          { status: val, _id: id },
+          { status: val, _id: id, cost: quantity * costperitem },
           {
             withCredentials: true,
           }
         )
-        .then((response) => {
-          // console.log(response.data.items);
+        .then(() => {
+          return axios.post(
+            `${process.env.REACT_APP_API_URL}/updateinventoryitems`,
+            { item: item, _id: id, quantity: quantity, flag: 1 },
+            {
+              withCredentials: true,
+            }
+          );
+        })
+        .then(() => {
           this.transactionitems();
         })
         .catch((error) => {
@@ -116,68 +145,80 @@ class InventoryPermissions extends Component {
                   <tr>
                     <th scope="col">SL</th>
                     <th scope="col">Item</th>
-                    <th scope="col">Requested By</th>
-                    <th scope="col">Quantity</th>
+                    <th scope="col">Availability</th>
+                    <th scope="col">Requested</th>
+                    <th scope="col">Cost/Item (INR)</th>
+                    <th scope="col">Total Cost (INR)</th>
                     <th scope="col">Status</th>
-                    <th scope="col">Cost (INR)</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {items.map((item, i) => (
-                    <tr key={i}>
-                      <td>{(current_page - 1) * per_page + (i + 1)}</td>
-                      <td>
-                        <div>{item.item}</div>
-                      </td>
-                      <td>
-                        <div>{item.initiatedby}</div>
-                      </td>
-                      <td>
-                        <div>
-                          <strong>{item.quantity}</strong>
-                        </div>
-                      </td>
-                      <td>
-                        <div>
-                          {item.status} (by {item.statusby})
-                        </div>
-                      </td>
-                      <td>
-                        <div>{item.cost}</div>
-                      </td>
-                      <td>
-                        <CButton
-                          color="danger"
-                          onClick={this.alter.bind(this, "denied", item._id)}
-                          disabled={item.status !== "payment in progress"}
-                        >
-                          Deny
-                        </CButton>
-                        &nbsp;
-                        <CButton
-                          color="success"
-                          onClick={this.alter.bind(this, "paid", item._id)}
-                          disabled={item.status !== "payment in progress"}
-                        >
-                          <StripeCheckout
-                            stripeKey="pk_test_51JISvASGTGDeZiN2L6dVpSBtCCkfDMDwuR4WwUyLmDRksGsR2eRIraXliSHHKbtDyAlU89yVuxYmEKGGJOd1mZKk00YlteVhG5"
-                            token={this.payment.bind(
+                  {items.map((item, i) =>
+                    item.status === "approved" ||
+                    item.status === "paid" ||
+                    item.status === "available now" ||
+                    item.status === "out of stock" ? (
+                      <tr key={i}>
+                        <td>{(current_page - 1) * per_page + (i + 1)}</td>
+                        <td>
+                          <div>{item.item}</div>
+                        </td>
+                        <td>
+                          <div>{item.availability}</div>
+                        </td>
+                        <td>
+                          <div>
+                            <strong>{item.quantity}</strong>
+                          </div>
+                        </td>
+                        <td>
+                          <div>{item.costperitem}</div>
+                        </td>
+                        <td>
+                          <div>{item.cost}</div>
+                        </td>
+                        <td>
+                          <div>
+                            {item.status} (by {item.statusby})
+                          </div>
+                        </td>
+                        <td>
+                          <CButton
+                            color="danger"
+                            onClick={this.alter.bind(
                               this,
-                              item.cost,
+                              "out of stock",
                               item._id,
                               item.item,
-                              item.quantity
+                              0
                             )}
-                            name={this.state.username}
-                            email={this.state.useremail}
+                            disabled={item.status === "paid"}
                           >
-                            Pay Now
-                          </StripeCheckout>
-                        </CButton>
-                      </td>
-                    </tr>
-                  ))}
+                            Deny
+                          </CButton>
+                          &nbsp;
+                          <CButton
+                            color="success"
+                            onClick={this.alter.bind(
+                              this,
+                              "available now",
+                              item._id,
+                              item.item,
+                              item.quantity,
+                              item.costperitem
+                            )}
+                            disabled={
+                              item.availability < item.quantity ||
+                              item.status === "available now"
+                            }
+                          >
+                            Approve
+                          </CButton>
+                        </td>
+                      </tr>
+                    ) : null
+                  )}
                 </tbody>
               </table>
             </div>

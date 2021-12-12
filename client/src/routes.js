@@ -30,83 +30,103 @@ const ShowInventory = React.lazy(() =>
 const Dashboard = React.lazy(() => import("./views/admin/Dashboard/Dashboard"));
 
 const routes = [
-  { path: "/dashboard", name: "Dashboard", component: Dashboard },
+  {
+    path: "/dashboard",
+    name: "Dashboard",
+    component: Dashboard,
+    role: JSON.parse(localStorage.getItem("client")).role,
+  },
   {
     path: "/admin/add-item",
     name: "Add Item",
     component: AddItems,
+    role: "admin",
   },
   {
     path: "/admin/ask-item",
     name: "Ask Item",
     component: AskItems,
+    role: "admin",
   },
   {
     path: "/admin/permissions",
     name: "Permissions/Status",
     component: Permissions,
+    role: "admin",
   },
   {
     path: "/admin/add-user",
     name: "Add User",
     component: AddUser,
+    role: "admin",
   },
   {
     path: "/admin/manage",
     name: "Manage User",
     component: ManageUser,
+    role: "admin",
   },
   {
     path: "/admin/reports",
     name: "Reports",
     component: Reports,
+    role: "admin",
   },
 
   {
     path: "/lab/request",
     name: "Request Items",
     component: RequestItems,
+    role: "lab-in-charge",
   },
   {
     path: "/lab/status",
     name: "Status",
     component: Status,
+    role: "lab-in-charge",
   },
   {
     path: "/lab/report",
     name: "Report",
     component: Alert,
+    role: "lab-in-charge",
   },
   {
     path: "/accounts/payments",
     name: "Payments",
     component: Payments,
+    role: "accountant",
   },
   {
     path: "/accounts/history",
     name: "Transaction history",
     component: Transactionlist,
+    role: "accountant",
   },
 
   {
     path: "/inventory/add-item",
     name: "Add Inventory",
     component: AddInventory,
+    role: "inventory-in-charge",
   },
   {
     path: "/inventory/requests",
     name: "View Requests",
     component: InventoryPermissions,
+    role: "inventory-in-charge",
   },
   {
     path: "/inventory/reports",
     name: "Add Report",
     component: InventoryReports,
+    role: "inventory-in-charge",
   },
   {
     path: "/inventory/items",
     name: "My Inventory",
     component: ShowInventory,
+    role: "inventory-in-charge",
   },
 ];
 

@@ -100,6 +100,7 @@ exports.updateitems = async (req, res) => {
           $set: {
             status: req.body.status.toLowerCase(),
             statusby: req.user.role,
+            cost: req.body.cost ? req.body.cost : "--",
           },
         }
       );

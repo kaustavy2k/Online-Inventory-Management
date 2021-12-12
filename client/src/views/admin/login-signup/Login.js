@@ -31,7 +31,7 @@ class Login extends Component {
       loading: false,
       passworderr: "",
       emailerr: "",
-      serverErr:""
+      serverErr: "",
     };
   }
   handleChange = (event) => {
@@ -77,10 +77,8 @@ class Login extends Component {
           });
         })
         .catch((err) => {
-          let msg = err.response.data.message;
-          console.log(msg);
           this.setState({
-            serverErr: msg,
+            serverErr: "Incorrect email or password",
             loading: false,
           });
           toast.warning("Some error occured!");

@@ -372,7 +372,8 @@ class Permissions extends Component {
                                 item.status === "payment in progress" ||
                                 item.status === "approved" ||
                                 item.status === "paid" ||
-                                item.status === "available now"
+                                item.status === "available now" ||
+                                item.status === "out of stock"
                               }
                             >
                               Approve

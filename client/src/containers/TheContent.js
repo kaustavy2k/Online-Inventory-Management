@@ -3,7 +3,9 @@ import BeatLoader from "react-spinners/BeatLoader";
 import { Redirect, Route, Switch } from "react-router-dom";
 import { CContainer, CFade } from "@coreui/react";
 import routes from "../routes";
+
 const TheContent = (props) => {
+  const user = JSON.parse(localStorage.getItem("client"));
   return (
     <main className="c-main">
       <CContainer fluid>
@@ -19,7 +21,8 @@ const TheContent = (props) => {
           <Switch>
             {routes.map((route, idx) => {
               return (
-                route.component && (
+                route.component &&
+                (user.role === route.role || user.role === "superadmin") && (
                   <Route
                     key={idx}
                     path={route.path}
