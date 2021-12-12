@@ -5,7 +5,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { CButton } from "@coreui/react";
-import "../Lab/lab.css"
+import "../Lab/lab.css";
 class InventoryReports extends Component {
   constructor(props) {
     super(props);
@@ -187,7 +187,7 @@ class InventoryReports extends Component {
                     </th>
                     <th scope="col">Requested By</th>
                     <th scope="col">Role</th>
-
+                    <th scope="col">Date</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -208,7 +208,11 @@ class InventoryReports extends Component {
                               <strong>{item.role}</strong>
                             </div>
                           </td>
-
+                          <td>
+                            <div>
+                              <strong>{item.date}</strong>
+                            </div>
+                          </td>
                           <td>
                             <CButton
                               color="danger"

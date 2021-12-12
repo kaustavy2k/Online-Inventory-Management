@@ -78,7 +78,7 @@ class InventoryPermissions extends Component {
       axios
         .post(
           `${process.env.REACT_APP_API_URL}/updatetransactionitems`,
-          { status: val, _id: id, cost: quantity * costperitem },
+          { status: val, _id: id, cost: quantity * costperitem, flag: 2 },
           {
             withCredentials: true,
           }
@@ -102,29 +102,6 @@ class InventoryPermissions extends Component {
         });
     }
   };
-  payment = (total, id, item, quantity, token) => {
-    this.setState({ loading: true });
-    axios
-      .post(
-        `${process.env.REACT_APP_API_URL}/paytransactionitems`,
-        {
-          token,
-          total,
-          id,
-          item,
-          quantity,
-        },
-        { withCredentials: true }
-      )
-      .then((res) => {
-        toast.success("Payment Successful!");
-        this.transactionitems();
-      })
-      .catch((err) => {
-        this.setState({ loading: false });
-        toast.warn("Some error occured!");
-      });
-  };
   render() {
     const { items, current_page, per_page } = this.state;
     return (
@@ -136,7 +113,7 @@ class InventoryPermissions extends Component {
         >
           <br></br>
           <div className="card">
-            <div className="card-header">Payments</div>
+            <div className="card-header">Requested Items</div>
 
             <div className="card-body scroller">
               <br></br>
@@ -157,6 +134,7 @@ class InventoryPermissions extends Component {
                   {items.map((item, i) =>
                     item.status === "approved" ||
                     item.status === "paid" ||
+                    item.status === "payment in progress" ||
                     item.status === "available now" ||
                     item.status === "out of stock" ? (
                       <tr key={i}>
@@ -180,7 +158,8 @@ class InventoryPermissions extends Component {
                         </td>
                         <td>
                           <div>
-                            {item.status} (by {item.statusby})
+                            {item.status} (by {item.statusby}) on <br></br>
+                            {item.statusdate || item.initiateddate}
                           </div>
                         </td>
                         <td>

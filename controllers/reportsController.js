@@ -5,6 +5,7 @@ exports.additems = async (req, res) => {
       initiatedby: req.user.name,
       role: req.user.role,
       report: req.body.report,
+      date: dateFormat(new Date(), "dd, mmmm dS, yyyy, h:MM:ss TT"),
     });
 
     res.status(200).json({
@@ -42,7 +43,7 @@ exports.showitems = async (req, res) => {
 };
 exports.deleteitems = async (req, res) => {
   try {
-    console.log(req.params.id)
+    console.log(req.params.id);
     await reportitems.findOneAndDelete({ _id: req.params.id });
     const items = await reportitems.find();
     if (items.length != 0) {

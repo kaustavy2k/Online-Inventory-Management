@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Spinner} from "react-bootstrap";
+import { Spinner } from "react-bootstrap";
 import LoadingOverlay from "react-loading-overlay";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
@@ -131,7 +131,11 @@ class Payments extends Component {
                         <div>{item.item}</div>
                       </td>
                       <td>
-                        <div>{item.initiatedby}</div>
+                        <div>
+                          {item.initiatedby ? item.initiatedby + " on" : "--"}
+                          <br></br>
+                          {item.initiateddate}
+                        </div>
                       </td>
                       <td>
                         <div>
@@ -140,7 +144,8 @@ class Payments extends Component {
                       </td>
                       <td>
                         <div>
-                          {item.status} (by {item.statusby})
+                          {item.status} (by {item.statusby}) on <br></br>
+                          {item.statusdate||item.initiateddate}
                         </div>
                       </td>
                       <td>

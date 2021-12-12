@@ -188,7 +188,7 @@ class Alert extends Component {
                     </th>
                     <th scope="col">Requested By</th>
                     <th scope="col">Role</th>
-
+                    <th scope="col">Date</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -209,7 +209,11 @@ class Alert extends Component {
                               <strong>{item.role}</strong>
                             </div>
                           </td>
-
+                          <td>
+                            <div>
+                              <strong>{item.date}</strong>
+                            </div>
+                          </td>
                           <td>
                             <CButton
                               color="danger"

@@ -3,6 +3,7 @@ const transactionitems = require("../models/transactionitems");
 const stripe = require("stripe")(
   "sk_test_51JISvASGTGDeZiN2lrEjvnv8Y8z8dzVYgAvqypudsuORQdIUVZvDkA05VMR9aU35jw5lDQUVzMVRSsEr24MzkmnH00VR1nMvcf"
 );
+const dateFormat = require("dateformat");
 const { v4: uuidv4 } = require("uuid");
 exports.additems = async (req, res) => {
   try {
@@ -10,6 +11,7 @@ exports.additems = async (req, res) => {
       i.item = i.item.toLowerCase();
       i.initiatedby = req.user.name;
       i.statusby = req.user.role;
+      i.initiateddate = dateFormat(new Date(), "dd, mmmm dS, yyyy, h:MM:ss TT");
       await transactionitems.create(i);
     }
     res.status(200).json({
@@ -83,13 +85,25 @@ exports.deleteitems = async (req, res) => {
 exports.updateitems = async (req, res) => {
   try {
     let updateditem;
-    if (req.body.flag) {
+    if (req.body.flag === 1) {
       updateditem = await transactionitems.updateOne(
         { _id: req.body._id },
         {
           $set: {
             item: req.body.item.toLowerCase(),
             quantity: req.body.quantity,
+          },
+        }
+      );
+    } else if (req.body.flag === 2) {
+      updateditem = await transactionitems.updateOne(
+        { _id: req.body._id },
+        {
+          $set: {
+            status: req.body.status.toLowerCase(),
+            statusby: req.user.role,
+            cost: req.body.cost ? req.body.cost : "--",
+            statusdate: dateFormat(new Date(), "dd, mmmm dS, yyyy, h:MM:ss TT"),
           },
         }
       );
@@ -100,7 +114,7 @@ exports.updateitems = async (req, res) => {
           $set: {
             status: req.body.status.toLowerCase(),
             statusby: req.user.role,
-            cost: req.body.cost ? req.body.cost : "--",
+            statusdate: dateFormat(new Date(), "dd, mmmm dS, yyyy, h:MM:ss TT"),
           },
         }
       );
@@ -156,6 +170,7 @@ exports.payment = async (req, res) => {
         $set: {
           status: "paid",
           statusby: req.user.role,
+          statusdate: dateFormat(new Date(), "dd, mmmm dS, yyyy, h:MM:ss TT"),
         },
       }
     );

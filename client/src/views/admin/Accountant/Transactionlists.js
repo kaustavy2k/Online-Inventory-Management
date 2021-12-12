@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Spinner  } from "react-bootstrap";
+import { Spinner } from "react-bootstrap";
 import LoadingOverlay from "react-loading-overlay";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
@@ -42,7 +42,7 @@ class Transactionlist extends Component {
   }
 
   render() {
-    const { items, current_page, per_page,  } = this.state;
+    const { items, current_page, per_page } = this.state;
     return (
       <>
         <ToastContainer />
@@ -76,7 +76,11 @@ class Transactionlist extends Component {
                           <div>{item.item}</div>
                         </td>
                         <td>
-                          <div>{item.initiatedby}</div>
+                          <div>
+                            {item.initiatedby ? item.initiatedby + " on" : "--"}
+                            <br></br>
+                            {item.initiateddate}
+                          </div>
                         </td>
                         <td>
                           <div>
@@ -85,16 +89,15 @@ class Transactionlist extends Component {
                         </td>
                         <td>
                           <div>
-                            {item.status} (by {item.statusby})
+                            {item.status} (by {item.statusby}) on <br></br>
+                            {item.statusdate}
                           </div>
                         </td>
                         <td>
                           <div>{item.cost}</div>
                         </td>
                       </tr>
-                    ) : (
-                      null
-                    )
+                    ) : null
                   )}
                 </tbody>
               </table>
