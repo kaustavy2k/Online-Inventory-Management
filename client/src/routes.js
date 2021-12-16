@@ -28,7 +28,9 @@ const ShowInventory = React.lazy(() =>
   import("./views/admin/Inventory/ShowInventory")
 );
 const Dashboard = React.lazy(() => import("./views/admin/Dashboard/Dashboard"));
-
+const UpdateProfile = React.lazy(() =>
+  import("./views/admin/UpdateProfile/Update")
+);
 const routes = [
   {
     path: "/dashboard",
@@ -127,6 +129,12 @@ const routes = [
     name: "My Inventory",
     component: ShowInventory,
     role: "inventory-in-charge",
+  },
+  {
+    path: "/admin/update",
+    name: "Update Profile",
+    component: UpdateProfile,
+    role: JSON.parse(localStorage.getItem("client")).role,
   },
 ];
 

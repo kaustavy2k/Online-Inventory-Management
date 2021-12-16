@@ -3,7 +3,21 @@ exports.additems = async (req, res) => {
   try {
     for (let i of req.body.data) {
       i.item = i.item.toLowerCase();
-      await collegeitems.create(i);
+      let k = await collegeitems.find({
+        item: i.item,
+      });
+      if (k.length) {
+        await collegeitems.updateOne(
+          { item: i.item },
+          {
+            $set: {
+              quantity: i.quantity,
+            },
+          }
+        );
+      } else {
+        await collegeitems.create(i);
+      }
     }
     res.status(200).json({
       message: "success",

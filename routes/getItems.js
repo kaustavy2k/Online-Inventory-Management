@@ -8,10 +8,11 @@ const inventoryitemsController = require("../controllers/inventoryitemsControlle
 
 const router = express.Router();
 
-
 router.route("/login").post(authController.login);
 router.route("/logout").get(authController.logout);
 router.route("/signup").post(authController.signup);
+router.route("/update").post(authController.protect, authController.updateUser);
+router.route("/update-password").post(authController.protect, authController.updatePassword);
 
 router
   .route("/addcollegeitems")
@@ -26,7 +27,7 @@ router
   .route("/updatecollegeitems")
   .post(authController.protect, collegeitemsController.updateitems);
 
-  router
+router
   .route("/addinventoryitems")
   .post(authController.protect, inventoryitemsController.additems);
 router
@@ -38,7 +39,6 @@ router
 router
   .route("/updateinventoryitems")
   .post(authController.protect, inventoryitemsController.updateitems);
-
 
 router
   .route("/addtransactionitems")

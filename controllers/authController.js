@@ -79,7 +79,7 @@ exports.login = async (req, res) => {
     }
 
     const user = await users.findOne({ email });
-    if(user.blocked){
+    if (user.blocked) {
       return res.status(500).json({
         status: "failure",
         message: "You are blocked",
@@ -120,26 +120,14 @@ exports.login = async (req, res) => {
 };
 
 exports.protect = async (req, res, next) => {
-  // 1) Getting token and check of it's there
-
   let token = req.cookies.jwt;
-
   let decoded;
-  // if (
-  //   req.headers.authorization &&
-  //   req.headers.authorization.startsWith("Bearer")
-  // ) {
-  //   token = req.headers.authorization.split(" ")[1];
-  // }
-
   if (!token) {
     return res.status(500).json({
       status: "failure",
       message: "you are not logged in. Please log in to continue",
     });
   }
-
-  // 2) Verification token
   try {
     decoded = jwt.verify(token, process.env.JWT_SECRET);
   } catch (err) {
@@ -148,8 +136,6 @@ exports.protect = async (req, res, next) => {
       message: err,
     });
   }
-
-  //check if user still exists
   const currentUser = await users.findById(decoded.id);
   if (!currentUser) {
     return res.status(500).json({
@@ -157,7 +143,6 @@ exports.protect = async (req, res, next) => {
       message: "the user doesnt exist anymore",
     });
   }
-  // 4) Check if user changed password after the token was issued
   if (currentUser.changedPasswordAfter(decoded.iat)) {
     return res.status(500).json({
       status: "failure",
@@ -169,7 +154,6 @@ exports.protect = async (req, res, next) => {
 };
 
 exports.forgotPassword = async (req, res) => {
-  // 1) Get user based on POSTed email
   const user = await users.findOne({ email: req.body.email });
   if (!user) {
     return res.status(500).json({
@@ -177,13 +161,8 @@ exports.forgotPassword = async (req, res) => {
       message: "no email found",
     });
   }
-
-  // 2) Generate the random reset token
   const resetToken = user.createPasswordResetToken();
   await user.save({ validateBeforeSave: false });
-
-  // 3) Send it to user's email
-
   const message = `Forgot your password? Here is your reset token ${resetToken} Copy and Paste it `;
 
   try {
@@ -221,7 +200,6 @@ exports.resetPassword = async (req, res) => {
       passwordResetExpires: { $gt: Date.now() },
     });
 
-    // 2) If token has not expired, and there is user, set the new password
     if (!user) {
       return res.status(500).json({
         status: "failure",
@@ -239,10 +217,6 @@ exports.resetPassword = async (req, res) => {
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     await user.save();
-
-    // 3) Update changedPasswordAt property for the user
-    // 4) Log the user in, send JWT
-
     user.password = undefined;
     const token = signToken(user._id);
     res.cookie("jwt", token, {
@@ -269,12 +243,10 @@ exports.resetPassword = async (req, res) => {
 
 exports.updatePassword = async (req, res) => {
   try {
-    // 1) Get user from collection
+    console.log(req.body);
     const user = await users.findById(req.user.id);
-
-    // 2) Check if POSTed current password is correct
     if (
-      !(await user.correctPassword(req.body.passwordCurrent, user.password))
+      !(await user.correctPassword(req.body.oldpassword, user.password))
     ) {
       return res.status(500).json({
         status: "failure",
@@ -287,13 +259,9 @@ exports.updatePassword = async (req, res) => {
         },
       });
     }
-
-    // 3) If so, update password
     user.password = req.body.password;
     user.passwordConfirm = req.body.passwordConfirm;
     await user.save();
-
-    //4)login user
     user.password = undefined;
     const token = signToken(user._id);
     res.cookie("jwt", token, {
@@ -306,6 +274,40 @@ exports.updatePassword = async (req, res) => {
     res.status(200).json({
       status: "success",
       token,
+      data: {
+        user,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      status: "failure",
+      message: err,
+    });
+  }
+};
+exports.updateUser = async (req, res) => {
+  try {
+    let user = await users.findById(req.user.id);
+    console.log(user);
+    if (!user) {
+      return res.status(500).json({
+        status: "failure",
+        message: "Users not found",
+      });
+    }
+    await users.updateOne(
+      { _id: req.user.id },
+      {
+        $set: {
+          name: req.body.name,
+          email: req.body.email,
+        },
+      }
+    );
+    user = await users.findById(req.user.id);
+    res.status(200).json({
+      status: "success",
       data: {
         user,
       },

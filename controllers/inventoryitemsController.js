@@ -3,7 +3,22 @@ exports.additems = async (req, res) => {
   try {
     for (let i of req.body.data) {
       i.item = i.item.toLowerCase();
-      await inventoryitems.create(i);
+      let k = await inventoryitems.find({
+        item: i.item,
+      });
+      if (k.length) {
+        await inventoryitems.updateOne(
+          { item: i.item },
+          {
+            $set: {
+              quantity: i.quantity,
+              cost: i.cost,
+            },
+          }
+        );
+      } else {
+        await inventoryitems.create(i);
+      }
     }
     res.status(200).json({
       message: "success",

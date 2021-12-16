@@ -189,7 +189,8 @@ class InventoryPermissions extends Component {
                             )}
                             disabled={
                               item.availability < item.quantity ||
-                              item.status === "available now"
+                              item.status === "available now" ||
+                              item.status === "paid"
                             }
                           >
                             Approve

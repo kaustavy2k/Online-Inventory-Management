@@ -243,6 +243,12 @@ const _nav = [
     },
   },
   ...menu,
+  {
+    _tag: "CSidebarNavItem",
+    name: "Update Profile",
+    to: `/admin/update`,
+    icon: "cil-cursor",
+  },
 ];
 
 export default _nav;
