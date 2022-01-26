@@ -23,7 +23,7 @@ const routes = [
     path: "/dashboard",
     name: "Dashboard",
     component: Dashboard,
-    role: JSON.parse(localStorage.getItem("client")).role,
+    role: JSON.parse(localStorage.getItem("client"))?.role,
   },
   {
     path: "/admin/add-item",
