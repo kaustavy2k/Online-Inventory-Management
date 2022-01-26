@@ -5,9 +5,9 @@ import "./scss/style.scss";
 import BeatLoader from "react-spinners/BeatLoader";
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import SimpleReactLightbox from "simple-react-lightbox";
-import TheLayout from "./containers/TheLayout";
-import Login from "./views/admin/login-signup/Login";
-import Signup from "./views/admin/login-signup/Signup";
+const TheLayout = React.lazy(() => import("./containers/TheLayout"));
+const Login = React.lazy(() => import("./views/admin/login-signup/Login"));
+const Signup = React.lazy(() => import("./views/admin/login-signup/Signup"));
 function ProtectedRoute({ component: Component, ...restOfProps }) {
   const isAuthenticated = JSON.parse(localStorage.getItem("client"))?._id;
   return (

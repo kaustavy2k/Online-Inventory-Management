@@ -1,29 +1,42 @@
-import AddItems from "./views/admin/Admin/AddItems";
-import AskItems from "./views/admin/Admin/AskItems";
-import AddUser from "./views/admin/Admin/AddUser";
-import ManageUser from "./views/admin/Admin/ManageUser";
-import Reports from "./views/admin/Admin/Reports";
-import Permissions from "./views/admin/Admin/Permissions";
+import React from "react";
+const AddItems = React.lazy(() => import("./views/admin/Admin/AddItems"));
+const AskItems = React.lazy(() => import("./views/admin/Admin/AskItems"));
+const AddUser = React.lazy(() => import("./views/admin/Admin/AddUser"));
+const ManageUser = React.lazy(() => import("./views/admin/Admin/ManageUser"));
+const Reports = React.lazy(() => import("./views/admin/Admin/Reports"));
+const Permissions = React.lazy(() => import("./views/admin/Admin/Permissions"));
 
-import RequestItems from "./views/admin/Lab/RequestItems";
-import Status from "./views/admin/Lab/Status";
-import Alert from "./views/admin/Lab/Alert";
+const RequestItems = React.lazy(() => import("./views/admin/Lab/RequestItems"));
+const Status = React.lazy(() => import("./views/admin/Lab/Status"));
+const Alert = React.lazy(() => import("./views/admin/Lab/Alert"));
 
-import Payments from "./views/admin/Accountant/Payments";
-import Transactionlist from "./views/admin/Accountant/Transactionlists";
+const Payments = React.lazy(() => import("./views/admin/Accountant/Payments"));
+const Transactionlist = React.lazy(() =>
+  import("./views/admin/Accountant/Transactionlists")
+);
 
-import AddInventory from "./views/admin/Inventory/AddInventory";
-import InventoryReports from "./views/admin/Inventory/InventoryReports";
-import InventoryPermissions from "./views/admin/Inventory/InventoryPermissions";
-import ShowInventory from "./views/admin/Inventory/ShowInventory";
-import Dashboard from "./views/admin/Dashboard/Dashboard";
-import UpdateProfile from "./views/admin/UpdateProfile/Update";
+const AddInventory = React.lazy(() =>
+  import("./views/admin/Inventory/AddInventory")
+);
+const InventoryReports = React.lazy(() =>
+  import("./views/admin/Inventory/InventoryReports")
+);
+const InventoryPermissions = React.lazy(() =>
+  import("./views/admin/Inventory/InventoryPermissions")
+);
+const ShowInventory = React.lazy(() =>
+  import("./views/admin/Inventory/ShowInventory")
+);
+const Dashboard = React.lazy(() => import("./views/admin/Dashboard/Dashboard"));
+const UpdateProfile = React.lazy(() =>
+  import("./views/admin/UpdateProfile/Update")
+);
 const routes = [
   {
     path: "/dashboard",
     name: "Dashboard",
     component: Dashboard,
-    role: JSON.parse(localStorage.getItem("client"))?.role,
+    role: JSON.parse(localStorage.getItem("client")).role,
   },
   {
     path: "/admin/add-item",

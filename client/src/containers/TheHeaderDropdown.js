@@ -20,8 +20,9 @@ const TheHeaderDropdown = () => {
         .then((res) => {
           localStorage.removeItem("client");
           history.push({
-            pathname: "/dashboard",
+            pathname: "/",
           });
+          window.location.reload();
         })
         .catch((err) => {
           console.log(err);
