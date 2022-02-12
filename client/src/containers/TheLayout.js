@@ -1,33 +1,17 @@
-import React from 'react'
-import {
-  TheContent,
-  TheSidebar,
-  TheFooter,
-  TheHeader
-} from './index'
+import React from "react";
+import { TheContent, TheSidebar, TheFooter, TheHeader } from "./index";
 const TheLayout = (props) => {
-// if(retrieveAuthData!==null)
-// {
   return (
     <div className="c-app c-default-layout">
-      <TheSidebar {...props}/>
+      <TheSidebar {...props} />
       <div className="c-wrapper">
-        <TheHeader/>
+        <TheHeader />
         <div className="c-body">
-          <TheContent {...props}/>
+          <TheContent {...props} />
         </div>
-        <TheFooter/>
+        <TheFooter />
       </div>
     </div>
-  )
-}
-// else
-// {
-//   return(
-//     <Redirect to={redirectUrl} />
-//   )
-// }
-  
-//}
-
-export default TheLayout
+  );
+};
+export default TheLayout;

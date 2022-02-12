@@ -1,5 +1,5 @@
-import React from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
 import {
   CCreateElement,
   CSidebar,
@@ -10,22 +10,27 @@ import {
   CSidebarMinimizer,
   CSidebarNavDropdown,
   CSidebarNavItem,
-} from '@coreui/react'
+} from "@coreui/react";
 
-import CIcon from '@coreui/icons-react'
-import navigation from './_nav'
-import {download} from '../assets/images'
-const TheSidebar = () => {
-  const dispatch = useDispatch()
-  const show = useSelector(state => state.sidebarShow)
-   var menu=navigation
+import CIcon from "@coreui/icons-react";
+import menuSelect from "./_nav";
+import { download } from "../assets/images";
+const TheSidebar = (props) => {
+  const dispatch = useDispatch();
+  const show = useSelector((state) => state.sidebarShow);
+  let menu = menuSelect(props.user);
   return (
     <CSidebar
       show={show}
-      onShowChange={(val) => dispatch({type: 'set', sidebarShow: val })}
+      onShowChange={(val) => dispatch({ type: "set", sidebarShow: val })}
     >
-      <CSidebarBrand className="d-md-down-none" >
-        <img src={download} height={170} style={{background:"white"}} alt="Bppimt Logo"/>
+      <CSidebarBrand className="d-md-down-none">
+        <img
+          src={download}
+          height={170}
+          style={{ background: "white" }}
+          alt="Bppimt Logo"
+        />
         <CIcon
           className="c-sidebar-brand-minimized"
           name="sygnet"
@@ -33,20 +38,19 @@ const TheSidebar = () => {
         />
       </CSidebarBrand>
       <CSidebarNav>
-
         <CCreateElement
           items={menu}
           components={{
             CSidebarNavDivider,
             CSidebarNavDropdown,
             CSidebarNavItem,
-            CSidebarNavTitle
+            CSidebarNavTitle,
           }}
         />
       </CSidebarNav>
-      <CSidebarMinimizer className="c-d-md-down-none"/>
+      <CSidebarMinimizer className="c-d-md-down-none" />
     </CSidebar>
-  )
-}
+  );
+};
 
-export default React.memo(TheSidebar)
+export default React.memo(TheSidebar);

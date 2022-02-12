@@ -22,7 +22,8 @@ const TheContent = (props) => {
             {routes.map((route, idx) => {
               return (
                 route.component &&
-                (user.role === "superadmin" || user.role === route.role) && (
+                (user.role === "superadmin" ||
+                  route.role.includes(user.role)) && (
                   <Route
                     key={idx}
                     path={route.path}
